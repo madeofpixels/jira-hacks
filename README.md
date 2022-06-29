@@ -1,2 +1,117 @@
 # jira-hacks
-Productivity enhancements for Jira and Confluence
+
+Contained within are some useful hacks to help make content creation easier in Jira and Confluence.
+
+## Getting Started
+
+These hacks require a means of injecting customized JavaScript and CSS code into the DOM — use your preferred browser extension (or bookmarklet, etc.) to accomplish this. To illustrate how to use the hacks, Chrome's User JavaScript and CSS extension is used below.
+
+1. Install your preferred custom JavaScript/CSS browser extension
+2. Navigate to the site you want to customize. Ex: for Jira, open your Team’s backlog page:
+
+   https://company.atlassian.net/jira/software/c/projects/ABC/boards/123/backlog
+   
+3. Click on the extension's icon in your browser bar (red arrow below) and click the + Add new button:
+
+   ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/all-chrome-extensions.png "All Chrome extensions")
+
+   — this will open a new tab with two panes (left = custom JavaScript, right = custom CSS). Ex:
+
+   ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/user-javascript-css-extension.png "User JS CSS view panes")
+
+   _Note:_ If the extension doesn't automatically appear in your Chrome browser, click the Extensions icon (green arrow above) then click on the pin icon next to User JavaScript and CSS.
+
+4. Copy & paste the following code block into the browser extension’s `JavaScript` pane and modify the `REQUEST_URLS` and `COLOR_FILTER_MAP` objects to suit your project:
+
+```javascript
+let cssElt = document.createElement('link');
+cssElt.href = 'https://cdn.jsdelivr.net/gh/madeofpixels/jira-hacks/main.min.css';
+cssElt.type = 'text/css';
+cssElt.rel = 'stylesheet';
+document.head.append(cssElt);
+
+// USED BY: Inject Custom Template on Create Issue
+// Custom templates are stored in https://api.npoint.io – you can define your own custom data source by following this structure for all entries: 'PROJECT_CODE': 'WEB_URL';
+
+const REQUEST_URLS = {
+	'ABC': 'https://api.npoint.io/656bccf0972ed60b7bba', // Edit template at https://www.npoint.io/docs/656bccf0972ed60b7bba
+}
+
+// USED BY: Display Filter Badge Counts
+// Add an entry per filter to track the number of cards that satisfy that filter criteria by following this structure for all entries: 
+// '#HEX_VALUE': {xpath: '//span[contains(text(),"FILTER_TEXT")]', badge: null, count: 0}
+// The hex key is taken from the [Board settings > Card colors > Color] value (ex: '#35d415')
+// The xpath string is comes from the [Board settings > Card colors > Quick Filters] filter name (ex: Unpointed)
+
+const COLOR_FILTER_MAP = {
+	'#cccccc': {xpath: '//span[contains(text(),"Unpointed")]', badge: null, count: 0}.
+	'#ee9900': {xpath: '//span[contains(text(),"No Labels")]', badge: null, count: 0}
+};
+
+const jsElt = document.createElement('script');
+jsElt.src = 'https://cdn.jsdelivr.net/gh/madeofpixels/jira-hacks/main.js';
+jsElt.type = 'text/javascript';
+jsElt.defer = true;
+document.body.append(jsElt);
+```
+
+5. Reload your (Jira/Confluence) browser tab to enable the hacks detailed below:
+
+## The Jira / Confluence Hacks
+
+### Jira: Inject a custom template on New Issue Creation
+
+```javascript
+/*===== Jira: Inject Custom Template on Create Issue =====*/
+function makeCustomTemplateInjector() {
+```
+
+_Problem:_ While Jira Automation allows you to add a custom template to a new issue, this occurs after the issue has been created. Unfortunately, this can lead to either (i) your content being overwritten, or (ii) you overwriting the automated template, if you open and modify the issue’s Description field prior to the automation completing. It's also possible to use ScriptRunner to add a custom behaviour, but at present, this is unavailable in Jira Cloud.
+
+_Solution:_ This hack injects a pre-defined custom template into the Description field when the issue is being created. Templates can be defined for any of Jira’s issue types (ex: Story, Bug, Spike, Epic), across multiple Jira projects.
+
+   ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-custom-template.png "Jira custom template")
+
+_Note:_ Templates should be stored externally in JSON format, as defined in the `REQUEST_URLS` object (see _Getting Started_ above). An object should be defined for each project, including unique templates for any (used) issue types (ex: Story, Bug, Epic, etc) of your choosing. Example JSON file: [https://www.npoint.io/docs/656bccf0972ed60b7bba](https://www.npoint.io/docs/656bccf0972ed60b7bba)
+
+### Jira: Display Filter Badge Counts
+
+```javascript
+/*===== Jira: Display Filter Badge Counts =====*/
+function makeFilterBadges() {
+```
+
+_Problem:_ While the custom filters are useful at providing focus, they don’t display how many items satisfy the filter criteria. For labels that call attention to items, it’s not apparent to the recipient that there are issues that require their attention — without first applying the filter.
+
+_Solution:_ This hack adds badge counts to user-specified filters (ex: `Team-Review`, `Unpointed`) when viewing a project’s Backlog or Sprint Board.
+
+   ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-badges.png "Jira badges")
+
+_Note:_ To add / modify the list of filters where badge counts should be applied, modify the `COLOR_FILTER_MAP` object (see _Getting Started_ above).
+
+### Jira & Confluence: Keep the editor tools visible on-screen
+
+```css
+/*===== Jira, Confluence: Keep the editor tools on-screen =====*/
+/* Jira: Edit Toolbar */
+#jira div[data-testid="ak-editor-main-toolbar"] {
+```
+
+_Problem:_ The editor toolbar scrolls out of view when editing a content-heavy ticket.
+
+_Solution:_ This hack fixes the position of the editor toolbar, so it always stays visible while editing the Description field or adding a comment.
+
+   ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-confluence-edit-toolbar.png "Jira & Confluence edit toolbar")
+
+### Jira (Epics): Display Smart Checklists below the Description field
+
+```javascript
+/*===== Jira (Epics): Display Smart Checklists below the Description field =====*/
+function makePositionSmartChecklist() {
+```
+
+_Problem:_ For content-heavy Epics (ex: description, linked items, tickets, …), the Smart Checklist appears close to the bottom of the ticket, “burying” important dependency-related information. 
+
+_Solution:_ This hack moves the Smart Checklist immediately below the Description.
+
+   ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-position-smart-checklist.png "Jira (Epics) position smart checklist")
