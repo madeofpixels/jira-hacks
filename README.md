@@ -25,7 +25,7 @@ These hacks require a means of injecting customized JavaScript and CSS code into
 
 ```javascript
 let cssElt = document.createElement('link');
-cssElt.href = 'https://cdn.jsdelivr.net/gh/madeofpixels/jira-hacks/main.min.css';
+cssElt.href = 'https://cdn.jsdelivr.net/gh/madeofpixels/jira-hacks/main.css';
 cssElt.type = 'text/css';
 cssElt.rel = 'stylesheet';
 document.head.append(cssElt);
