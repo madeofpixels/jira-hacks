@@ -220,33 +220,33 @@ function makeFilterBadges() {
 	let isBoardUpdateInProgress = false;
 
 	const _componentToHex = function(c) {
-	  var hex = parseInt(c).toString(16);
-	  return hex.length == 1 ? '0' + hex : hex;
+		const hex = parseInt(c).toString(16);
+		return hex.length == 1 ? '0' + hex : hex;
 	}
 	
 	const _rgbToHex = function(rgbArr) {
-	  return '#' + _componentToHex(rgbArr[0]) + _componentToHex(rgbArr[1]) + _componentToHex(rgbArr[2]);
+		return '#' + _componentToHex(rgbArr[0]) + _componentToHex(rgbArr[1]) + _componentToHex(rgbArr[2]);
 	}
 	
 	const _createBadge = function(colorKey, count) {
-	  const badge = document.createElement('span');
-	  badge.classList.add('badge');
-	  badge.innerHTML = count;
-	  return badge;
+		const badge = document.createElement('span');
+		badge.classList.add('badge');
+		badge.innerHTML = count;
+		return badge;
 	}
 	
 	const _getGrabberCounts = function() {
 		const grabbers = document.querySelectorAll('div[class=ghx-grabber]');
 		
 		// Reset grabber counts (ie: in case they have dynamically changed)
-	    for (const [colorKey, props] of Object.entries(COLOR_FILTER_MAP)) { props.count = 0; }
+		for (const [colorKey, props] of Object.entries(COLOR_FILTER_MAP)) { props.count = 0; }
 	
 		// Tally the counts for each filter type
 		grabbers.forEach(
-		  elt => {
-		    const eltColor = _rgbToHex(elt.style.backgroundColor.replace('rgb(','').replace(')','').split(','));
-		    if (COLOR_FILTER_MAP[eltColor]) { COLOR_FILTER_MAP[eltColor].count++; }
-		  }
+			elt => {
+				const eltColor = _rgbToHex(elt.style.backgroundColor.replace('rgb(','').replace(')','').split(','));
+				if (COLOR_FILTER_MAP[eltColor]) { COLOR_FILTER_MAP[eltColor].count++; }
+			}
 		);
 	}
 	
@@ -264,13 +264,13 @@ function makeFilterBadges() {
 			if (filterElt == null) { continue; }
 			
 			if (props.count > 0) { // Only update filter counts > 0
-			    if (filterElt.childNodes.length == 1) {
-			    	currBadge = _createBadge(colorKey, props.count);
-			    	props.badge = currBadge; // Store a ref to the badge
-			    	filterElt.appendChild(props.badge);
-			    } else {
-			    	props.badge.innerHTML = props.count;
-			    }
+				if (filterElt.childNodes.length == 1) {
+					currBadge = _createBadge(colorKey, props.count);
+					props.badge = currBadge; // Store a ref to the badge
+					filterElt.appendChild(props.badge);
+				} else {
+					props.badge.innerHTML = props.count;
+				}
 			} else {
 		  		if (filterElt.childNodes.length > 1) {
 		  			filterElt.removeChild(props.badge);
@@ -326,24 +326,24 @@ function makeFilterBadges() {
 
 // Listen for custom 'locationchange' event on URL change
 ;(function() {
-    let pushState = history.pushState;
-    let replaceState = history.replaceState;
+	let pushState = history.pushState;
+	let replaceState = history.replaceState;
 
-    history.pushState = function() {
-        pushState.apply(history, arguments);
-        window.dispatchEvent(new Event('pushstate'));
-        window.dispatchEvent(new Event('locationchange'));
-    };
+	history.pushState = function() {
+		pushState.apply(history, arguments);
+		window.dispatchEvent(new Event('pushstate'));
+		window.dispatchEvent(new Event('locationchange'));
+	};
 
-    history.replaceState = function() {
-        replaceState.apply(history, arguments);
-        window.dispatchEvent(new Event('replacestate'));
-        window.dispatchEvent(new Event('locationchange'));
-    };
+	history.replaceState = function() {
+		replaceState.apply(history, arguments);
+		window.dispatchEvent(new Event('replacestate'));
+		window.dispatchEvent(new Event('locationchange'));
+	};
 
-    window.addEventListener('popstate', function() {
-        window.dispatchEvent(new Event('locationchange'))
-    });
+	window.addEventListener('popstate', function() {
+		window.dispatchEvent(new Event('locationchange'))
+	});
 })();
 
 function makeJiraHacks() {
