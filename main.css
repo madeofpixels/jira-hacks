@@ -1,14 +1,14 @@
 /*===== Jira: Display Filter Badge Counts =====*/
 #jira span.badge {
-  margin-left: 6px;
-  padding: 3px 9px;
-  -moz-border-radius: 9px; 
-  -webkit-border-radius: 9px; 
-  border-radius: 9px;
-  background-color: #24a2e2;
-  font-size: 12px;
-  color: white;
-  text-align: center;
+	margin-left: 6px;
+	padding: 3px 9px;
+	-moz-border-radius: 9px; 
+	-webkit-border-radius: 9px; 
+	border-radius: 9px;
+	background-color: #24a2e2;
+	font-size: 12px;
+	color: white;
+	text-align: center;
 }
 
 /*===== Jira (Epics): Display Smart Checklists below the Description field =====*/
@@ -101,10 +101,10 @@
 
 #com-atlassian-confluence span[data-id="gpb-common"] {
 	z-index: 700;
-    position: fixed;
-    top: 70px;
-    right: 15px;
-    border: #eee 1px solid;
-    padding: 0 10px;
-    background-color: #f5f6f8;
+	position: fixed;
+	top: 70px;
+	right: 15px;
+	border: #eee 1px solid;
+	padding: 0 10px;
+	background-color: #f5f6f8;
 }
