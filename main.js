@@ -10,9 +10,11 @@ const REQUEST_URLS = {
 	'ABC': 'https://api.npoint.io/656bccf0972ed60b7bba', // Edit template at https://www.npoint.io/docs/656bccf0972ed60b7bba
 }
 */
-const REQUEST_URLS = {
-	'PROJECT': 'https://URL_TO_TEMPLATES',
-}
+
+// Uncomment and add your jira project/json template pairing(s):
+// const REQUEST_URLS = {
+// 	'PROJECT': 'https://URL_TO_TEMPLATES',
+// }
 
 /* USED BY: Display Filter Badge Counts
 Add an entry per filter to track the number of cards that satisfy that filter criteria by following this 
@@ -29,9 +31,11 @@ const COLOR_FILTER_MAP = {
 	, '#ee9900': {xpath: '//span[contains(text(),"No Labels")]', badge: null, count: 0}
 };
 */
-const COLOR_FILTER_MAP = {
-	'#HEXVAL': {xpath: '//span[contains(text(),"SOME_TEXT")]', badge: null, count: 0}
-};
+
+// Uncomment and add your color/filter pairing(s):
+// const COLOR_FILTER_MAP = {
+// 	'#HEXVAL': {xpath: '//span[contains(text(),"SOME_TEXT")]', badge: null, count: 0}
+// };
 
 
 /*===== Jira (Epics): Display Smart Checklists below the Description field =====*/
