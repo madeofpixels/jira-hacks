@@ -31,8 +31,8 @@
 	height: 50px;
 }
 
-#jira div[role="dialog"] div[data-testid="ak-editor-main-toolbar"] {
-	/* Edit issue modal: Main Toolbar */
+/* Edit Issue modal: Main Toolbar */
+#jira .css-1yfnrso.e1pwmxs04 div[data-testid="ak-editor-main-toolbar"] {
 	left: 0;
 	right: 0;
 	margin-left: auto;
@@ -42,8 +42,8 @@
 	width: 1258px;
 }
 
-#jira div[data-testid="issue-create.ui.modal"] div[data-testid="ak-editor-main-toolbar"] {
-	/* Create issue modal: Main Toolbar */
+/* Create Issue modal: Main Toolbar */
+#jira .css-1jesbqk.e1pwmxs01 div[data-testid="ak-editor-main-toolbar"] {
 	z-index: 1;
 	position: sticky;
 	top: -1px;
@@ -58,7 +58,8 @@
 	height: 50px;
 }
 
-#jira div[data-testid="issue-create.ui.modal"] .css-4mp3pp-menu {	
+/* Create Issue modal: Dropdown Menus */
+#jira .css-1jesbqk.e1pwmxs01 .css-4mp3pp-menu {
 	z-index: 800;
 }
 
