@@ -25,7 +25,7 @@ These hacks require a means of injecting customized JavaScript and CSS code into
 
 ```javascript
 let cssElt = document.createElement('link');
-cssElt.href = 'https://cdn.jsdelivr.net/gh/madeofpixels/jira-hacks/main.min.css';
+cssElt.href = 'https://cdn.jsdelivr.net/gh/madeofpixels/jira-hacks@latest/main.min.css';
 cssElt.type = 'text/css';
 cssElt.rel = 'stylesheet';
 document.head.append(cssElt);
@@ -49,7 +49,7 @@ const COLOR_FILTER_MAP = {
 };
 
 const jsElt = document.createElement('script');
-jsElt.src = 'https://cdn.jsdelivr.net/gh/madeofpixels/jira-hacks/main.min.js';
+jsElt.src = 'https://cdn.jsdelivr.net/gh/madeofpixels/jira-hacks@latest/main.min.js';
 jsElt.type = 'text/javascript';
 jsElt.defer = true;
 document.body.append(jsElt);
