@@ -31,14 +31,16 @@ cssElt.rel = 'stylesheet';
 document.head.append(cssElt);
 
 // USED BY: Inject Custom Template on Create Issue
-// Custom templates are stored in https://api.npoint.io – you can define your own custom data source by following this structure for all entries: 'PROJECT_CODE': 'WEB_URL';
+// Custom templates are stored in https://api.npoint.io
+// You can define your own custom data source by following this structure: 
+// 'PROJECT_CODE': 'WEB_URL';
 
 const REQUEST_URLS = {
 	'ABC': 'https://api.npoint.io/656bccf0972ed60b7bba', // Edit template at https://www.npoint.io/docs/656bccf0972ed60b7bba
 }
 
 // USED BY: Display Filter Badge Counts
-// Add an entry per filter to track the number of cards that satisfy that filter criteria by following this structure for all entries: 
+// Add an entry (per filter) to track the number of cards that satisfy that filter criteria by following this structure: 
 // '#HEX_VALUE': {xpath: '//span[contains(text(),"FILTER_TEXT")]', badge: null, count: 0}
 // The hex key is taken from the [Board settings > Card colors > Color] value (ex: '#35d415')
 // The xpath string is comes from the [Board settings > Card colors > Quick Filters] filter name (ex: Unpointed)
