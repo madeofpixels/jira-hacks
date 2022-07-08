@@ -78,7 +78,7 @@ _Solution:_ This hack injects a pre-defined custom template into the Description
 
    ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-custom-template.png "Jira custom template")
 
-_Note:_ Templates should be stored externally in JSON format, as defined in the `REQUEST_URLS` object (see _Getting Started_ above). An object should be defined for each project, including unique templates for any (used) issue types (ex: Story, Bug, Epic, etc) of your choosing. Example JSON file: [https://www.npoint.io/docs/656bccf0972ed60b7bba](https://www.npoint.io/docs/656bccf0972ed60b7bba)
+_Note:_ Templates should be stored externally in JSON format, as defined in the `REQUEST_URLS` object (see [Getting Started](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#getting-started) above). An object should be defined for each project, including unique templates for any (used) issue types (ex: Story, Bug, Epic, etc) of your choosing. Example JSON file: [https://www.npoint.io/docs/656bccf0972ed60b7bba](https://www.npoint.io/docs/656bccf0972ed60b7bba)
 
 ### Jira: Display filter badge counts
 
@@ -93,7 +93,7 @@ _Solution:_ This hack adds badge counts to user-specified filters (ex: `Team-Rev
 
    ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-badges.png "Jira badges")
 
-_Note:_ To add / modify the list of filters where badge counts should be applied, modify the `COLOR_FILTER_MAP` object (see _Getting Started_ above).
+_Note:_ To add / modify the list of filters where badge counts should be applied, modify the `COLOR_FILTER_MAP` object (see [Getting Started](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#getting-started) above).
 
 ### Jira & Confluence: Keep the editor tools visible on-screen
 
