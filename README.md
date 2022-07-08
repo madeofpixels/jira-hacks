@@ -1,10 +1,10 @@
 # jira-hacks
 
 Contained within are some useful hacks to help make content creation easier in Jira and Confluence.
-- [Jira: Inject a custom template on issue creation](https://github.com/madeofpixels/jira-hacks/edit/main/README.md#jira-inject-a-custom-template-on-new-issue-creation)
-- [Jira: Display filter badge counts](https://github.com/madeofpixels/jira-hacks/edit/main/README.md#jira-display-filter-badge-counts)
-- [Jira & Confluence: Keep the editor tools visible on-screen](https://github.com/madeofpixels/jira-hacks/edit/main/README.md#jira--confluence-keep-the-editor-tools-visible-on-screen)
-- [Jira: Display smart checklists below the Description field](https://github.com/madeofpixels/jira-hacks/edit/main/README.md#jira-epics-display-smart-checklists-below-the-description-field)
+- [Jira: Inject a custom template on issue creation](https://github.com/madeofpixels/jira-hacks/main/README.md#jira-inject-a-custom-template-on-new-issue-creation)
+- [Jira: Display filter badge counts](https://github.com/madeofpixels/jira-hacks/main/README.md#jira-display-filter-badge-counts)
+- [Jira & Confluence: Keep the editor tools visible on-screen](https://github.com/madeofpixels/jira-hacks/main/README.md#jira--confluence-keep-the-editor-tools-visible-on-screen)
+- [Jira: Display smart checklists below the Description field](https://github.com/madeofpixels/jira-hacks/main/README.md#jira-epics-display-smart-checklists-below-the-description-field)
 
 ## Getting Started
 
