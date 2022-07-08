@@ -6,6 +6,8 @@ Contained within are some useful hacks to help make content creation easier in J
 - [Jira & Confluence: Keep the editor tools visible on-screen](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#jira--confluence-keep-the-editor-tools-visible-on-screen)
 - [Jira: Display smart checklists below the Description field](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#jira-display-smart-checklists-below-the-description-field)
 
+---
+
 ## Getting Started
 
 These hacks require a means of injecting customized JavaScript and CSS code into the DOM — use your preferred browser extension (or bookmarklet, etc.) to accomplish this. To illustrate how to use the hacks, Chrome's User JavaScript and CSS extension is used below.
