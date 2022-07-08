@@ -80,6 +80,8 @@ _Solution:_ This hack injects a pre-defined custom template into the Description
 
 _Note:_ Templates should be stored externally in JSON format, as defined in the `REQUEST_URLS` object (see [Getting Started](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#getting-started) above). An object should be defined for each project, including unique templates for any (used) issue types (ex: Story, Bug, Epic, etc) of your choosing. Example JSON file: [https://www.npoint.io/docs/656bccf0972ed60b7bba](https://www.npoint.io/docs/656bccf0972ed60b7bba)
 
+---
+
 ### Jira: Display filter badge counts
 
 ```javascript
@@ -95,6 +97,8 @@ _Solution:_ This hack adds badge counts to user-specified filters (ex: `Team-Rev
 
 _Note:_ To add / modify the list of filters where badge counts should be applied, modify the `COLOR_FILTER_MAP` object (see [Getting Started](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#getting-started) above).
 
+---
+
 ### Jira & Confluence: Keep the editor tools visible on-screen
 
 ```css
@@ -108,6 +112,8 @@ _Problem:_ The editor toolbar scrolls out of view when editing a content-heavy t
 _Solution:_ This hack fixes the position of the editor toolbar, so it always stays visible while editing the Description field or adding a comment.
 
    ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-confluence-edit-toolbar.png "Jira & Confluence edit toolbar")
+
+---
 
 ### Jira: Display Smart Checklists below the Description field
 
