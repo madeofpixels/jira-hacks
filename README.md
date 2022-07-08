@@ -4,7 +4,7 @@ Contained within are some useful hacks to help make content creation easier in J
 - [Jira: Inject a custom template on issue creation](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#jira-inject-a-custom-template-on-issue-creation)
 - [Jira: Display filter badge counts](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#jira-display-filter-badge-counts)
 - [Jira & Confluence: Keep the editor tools visible on-screen](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#jira--confluence-keep-the-editor-tools-visible-on-screen)
-- [Jira: Display smart checklists below the Description field](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#jira-epics-display-smart-checklists-below-the-description-field)
+- [Jira: Display smart checklists below the Description field](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#jira-display-smart-checklists-below-the-description-field)
 
 ## Getting Started
 
