@@ -1,6 +1,10 @@
 # jira-hacks
 
 Contained within are some useful hacks to help make content creation easier in Jira and Confluence.
+- [Jira: Inject a custom template on issue creation](https://github.com/madeofpixels/jira-hacks/edit/main/README.md#jira-inject-a-custom-template-on-new-issue-creation)
+- [Jira: Display filter badge counts](https://github.com/madeofpixels/jira-hacks/edit/main/README.md#jira-display-filter-badge-counts)
+- [Jira & Confluence: Keep the editor tools visible on-screen](https://github.com/madeofpixels/jira-hacks/edit/main/README.md#jira--confluence-keep-the-editor-tools-visible-on-screen)
+- [Jira: Display smart checklists below the Description field](https://github.com/madeofpixels/jira-hacks/edit/main/README.md#jira-epics-display-smart-checklists-below-the-description-field)
 
 ## Getting Started
 
@@ -61,22 +65,22 @@ document.body.append(jsElt);
 
 ## The Jira / Confluence Hacks
 
-### Jira: Inject a custom template on New Issue Creation
+### Jira: Inject a custom template on issue creation
 
 ```javascript
 /*===== Jira: Inject Custom Template on Create Issue =====*/
 function makeCustomTemplateInjector() {
 ```
 
-_Problem:_ While Jira Automation allows you to add a custom template to a new issue, this occurs after the issue has been created. Unfortunately, this can lead to either (i) your content being overwritten, or (ii) you overwriting the automated template, if you open and modify the issue’s Description field prior to the automation completing. It's also possible to use ScriptRunner to add a custom behaviour, but at present, this is unavailable in Jira Cloud.
+_Problem:_ While Jira Automation allows you to add a custom template to a new issue, this occurs after the issue is been created. Unfortunately, if you open and modify the issue’s Description field prior to the automation completing, this can lead to either (i) your content being overwritten, or (ii) you overwriting the automated template.
 
-_Solution:_ This hack injects a pre-defined custom template into the Description field when the issue is being created. Templates can be defined for any of Jira’s issue types (ex: Story, Bug, Spike, Epic), across multiple Jira projects.
+_Solution:_ This hack injects a pre-defined custom template into the Description field when the issue is being created. Templates can be defined for any of Jira’s issue types (ex: Story, Bug, Spike, Epic), across multiple Jira projects. While it's possible to accomplish this using ScriptRunner to add a custom behaviour, at present, this is unavailable in Jira Cloud.
 
    ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-custom-template.png "Jira custom template")
 
 _Note:_ Templates should be stored externally in JSON format, as defined in the `REQUEST_URLS` object (see _Getting Started_ above). An object should be defined for each project, including unique templates for any (used) issue types (ex: Story, Bug, Epic, etc) of your choosing. Example JSON file: [https://www.npoint.io/docs/656bccf0972ed60b7bba](https://www.npoint.io/docs/656bccf0972ed60b7bba)
 
-### Jira: Display Filter Badge Counts
+### Jira: Display filter badge counts
 
 ```javascript
 /*===== Jira: Display Filter Badge Counts =====*/
@@ -105,7 +109,7 @@ _Solution:_ This hack fixes the position of the editor toolbar, so it always sta
 
    ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-confluence-edit-toolbar.png "Jira & Confluence edit toolbar")
 
-### Jira (Epics): Display Smart Checklists below the Description field
+### Jira: Display Smart Checklists below the Description field
 
 ```javascript
 /*===== Jira (Epics): Display Smart Checklists below the Description field =====*/
