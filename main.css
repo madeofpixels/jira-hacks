@@ -2,8 +2,8 @@
 #jira span.badge {
 	margin-left: 6px;
 	padding: 3px 9px;
-	-moz-border-radius: 9px; 
-	-webkit-border-radius: 9px; 
+	-moz-border-radius: 9px;
+	-webkit-border-radius: 9px;
 	border-radius: 9px;
 	background-color: #24a2e2;
 	font-size: 12px;
@@ -32,7 +32,7 @@
 }
 
 /* Edit Issue modal: Main Toolbar */
-#jira .css-1yfnrso.e1pwmxs04 div[data-testid="ak-editor-main-toolbar"] {
+#jira div.css-gu9opt div[data-testid="ak-editor-main-toolbar"] {
 	left: 0;
 	right: 0;
 	margin-left: auto;
@@ -43,7 +43,7 @@
 }
 
 /* Create Issue modal: Main Toolbar */
-#jira .css-1jesbqk.e1pwmxs01 div[data-testid="ak-editor-main-toolbar"] {
+#jira #issue-create-modal-dropzone-container div[data-testid="ak-editor-main-toolbar"] {
 	z-index: 1;
 	position: sticky;
 	top: -1px;
@@ -59,7 +59,7 @@
 }
 
 /* Create Issue modal: Dropdown Menus */
-#jira .css-1jesbqk.e1pwmxs01 .css-4mp3pp-menu {
+#jira #issue-create-modal-dropzone-container .css-4mp3pp-menu {
 	z-index: 800;
 }
 
@@ -78,6 +78,7 @@
 	padding: 9px 10px;
 }
 
+/* Edit Issue modal: Secondary Toolbar */
 #jira div[role="dialog"] div[data-testid="ak-editor-secondary-toolbar"] {
 	top: 115px;
 	left: 0;

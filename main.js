@@ -69,26 +69,26 @@ function makeCustomTemplateInjector() {
 
 	const _fetchTemplates = async function(projectCode, _callback = undefined) {
 		// Force expiry of stored templates every 7 days, to ensure "permanently opened" tabs receive version updates
-		if (sessionStorage.getItem('templates-created-on-date') !== null) {
-			const templatesCreatedOnDate = new Date(sessionStorage.getItem('templates-created-on-date'));
+		if (localStorage.getItem('templates-created-on-date') !== null) {
+			const templatesCreatedOnDate = new Date(localStorage.getItem('templates-created-on-date'));
 			const currDate = new Date();
 			const diffDatesByTime = currDate.getTime() - templatesCreatedOnDate.getTime();
 			const diffDatesByDays = diffDatesByTime / (1000 * 3600 * 24);
 			
 			if (diffDatesByDays > 7) { // Invalidate stored templates that are older than 7 days
-				for (key in sessionStorage) { 
+				for (key in localStorage) { 
 					if (key.indexOf('template-') == 0) { 
-						sessionStorage.removeItem(key);
+						localStorage.removeItem(key);
 					}
 				}
 				
-				sessionStorage.setItem('templates-created-on-date', new Date());
+				localStorage.setItem('templates-created-on-date', new Date());
 			}
-		} else { // New session, store the date
-			sessionStorage.setItem('templates-created-on-date', new Date());
+		} else { // First time, store the date
+			localStorage.setItem('templates-created-on-date', new Date());
 		}
 		
-		if (sessionStorage.getItem('template-' + projectCode) !== null || REQUEST_URLS[projectCode] == undefined) {
+		if (localStorage.getItem('template-' + projectCode) !== null || REQUEST_URLS[projectCode] == undefined) {
 			// Don't re-fetch if in same project or the project code is undefined
 			typeof(_callback) == 'function' && _callback(projectCode);
 			return;
@@ -102,7 +102,7 @@ function makeCustomTemplateInjector() {
 			const jsonResponse = await response.json();
 			
 			if (typeof jsonResponse == 'object') {
-				sessionStorage.setItem('template-' + projectCode, JSON.stringify(jsonResponse));
+				localStorage.setItem('template-' + projectCode, JSON.stringify(jsonResponse));
 			}
 			
 			typeof(_callback) == 'function' && _callback(projectCode);
@@ -113,7 +113,7 @@ function makeCustomTemplateInjector() {
 	
 	const _listenForCreateIssueMutations = function(e) {
 		setTimeout(() => {
-			const createIssueMutationNode = document.querySelector('.css-1jesbqk.e1pwmxs01');
+			const createIssueMutationNode = document.getElementById('issue-create-modal-dropzone-container');
 			
 			if (createIssueMutationNode != null) {
 				createIssueObserver.observe(createIssueMutationNode, CREATE_ISSUE_MUTATION_CONFIG);
@@ -144,23 +144,21 @@ function makeCustomTemplateInjector() {
 	const _injectIssueTemplate = function(projectCode) {
 		const createDescriptionField = document.querySelector('.ak-editor-content-area div[aria-label="Main content area"]');
 		
-		if (sessionStorage.getItem('template-' + projectCode) == null) {
+		if (localStorage.getItem('template-' + projectCode) == null) {
 			createDescriptionField.innerHTML = '';
 			return;
 		}
 		
 		const issueTypePicker = document.querySelector('.i3zfbj-0.bnTrzr .xkgbo7-3.aWXco');
 		const selectedIssueType = (issueTypePicker && issueTypePicker.innerHTML) || null;
-		const currProjectTemplates = JSON.parse(sessionStorage.getItem('template-' + projectCode));
+		const currProjectTemplates = JSON.parse(localStorage.getItem('template-' + projectCode));
 
-		switch (selectedIssueType) {
-			case 'Bug': createDescriptionField.innerHTML = currProjectTemplates.Bug; break;
-			case 'Story': createDescriptionField.innerHTML = currProjectTemplates.Story; break;
-			case 'Spike': createDescriptionField.innerHTML = currProjectTemplates.Spike; break;
-			case 'Epic': createDescriptionField.innerHTML = currProjectTemplates.Epic; break;
-			default: createDescriptionField.innerHTML = ''; break;
+		if (selectedIssueType != null && currProjectTemplates[selectedIssueType] != undefined) {
+			createDescriptionField.innerHTML = currProjectTemplates[selectedIssueType];
+		} else {
+			createDescriptionField.innerHTML = ''; // Clear the loading state
 		}
-		
+
 		setTimeout(() => { document.getElementById('issue-create.ui.modal.modal-body').scrollTop = 0; }, 1); // Wait for the next tick (ie: modal body to render)
 	}
 	
