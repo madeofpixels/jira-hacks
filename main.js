@@ -122,22 +122,19 @@ function makeCustomTemplateInjector() {
 	}
 
 	const _getIssueTemplate = function() {
-		const projectCodePicker = document.querySelector('.i3zfbj-0.isaQiP .xkgbo7-3.aWXco');
-		const lastEllipseIndex = projectCodePicker.innerHTML.lastIndexOf('(');
-		const selectedDDProjectCode = (projectCodePicker && projectCodePicker.innerHTML.slice(lastEllipseIndex + 1).split(')')[0]) || null;
-		
-		let projectCodeToUse;
+		const projectCodePicker = document.getElementById('issue-create.ui.modal.create-form.project-picker.project-select');
+		const lastCloseEllipseDivIndex = projectCodePicker.innerHTML.lastIndexOf(')</div>'); // ex: "...ABC Team (ABC)</div>..."
+		const projectCodeFragment = projectCodePicker.innerHTML.slice(0, lastCloseEllipseDivIndex);
+		const lastOpenEllipseIndex = projectCodeFragment.lastIndexOf('(');
+		const selectedDDProjectCode = (projectCodeFragment && projectCodeFragment.slice(lastOpenEllipseIndex + 1)) || null;
 		
 		if (selectedDDProjectCode && selectedDDProjectCode != currProjectCode) {
-			projectCodeToUse = selectedDDProjectCode;
-			
-			const createDescriptionField = document.querySelector('.ak-editor-content-area div[aria-label="Main content area"]');
+			const createDescriptionField = document.querySelector('.ak-editor-content-area div[aria-label="Main content area"]');			
 			createDescriptionField.innerHTML = 'Loading template...';
 			
-			_fetchTemplates(projectCodeToUse, _injectIssueTemplate);
+			_fetchTemplates(selectedDDProjectCode, _injectIssueTemplate);
 		} else {
-			projectCodeToUse = currProjectCode;
-			_injectIssueTemplate(projectCodeToUse);
+			_injectIssueTemplate(currProjectCode);
 		}
 	}
 	
@@ -149,7 +146,8 @@ function makeCustomTemplateInjector() {
 			return;
 		}
 		
-		const issueTypePicker = document.querySelector('.i3zfbj-0.bnTrzr .xkgbo7-3.aWXco');
+		const issueTypePicker = document.getElementById('issue-create.ui.modal.create-form.type-picker.issue-type-select')
+			.querySelector('.css-hkzqy0-singleValue > div > div:nth-child(2) > div');
 		const selectedIssueType = (issueTypePicker && issueTypePicker.innerHTML) || null;
 		const currProjectTemplates = JSON.parse(localStorage.getItem('template-' + projectCode));
 
