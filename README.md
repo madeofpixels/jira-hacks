@@ -27,7 +27,7 @@ These hacks require a means of injecting customized JavaScript and CSS code into
 
    _Note:_ If the extension doesn't automatically appear in your Chrome browser, click the Extensions icon (green arrow above) then click on the pin icon next to User JavaScript and CSS.
 
-4. Copy & paste the following code block into the browser extension’s `JavaScript` pane and modify the `REQUEST_URLS` and `COLOR_FILTER_MAP` objects to suit your project:
+4. Copy & paste the following code block into the browser extension’s `JavaScript` pane and modify the `USER_TEMPLATE_URLS` and `USER_LABELS_AND_STATUSES_TO_FILTERS` objects to suit your project:
 
 ```javascript
 let cssElt = document.createElement('link');
