@@ -90,7 +90,7 @@ _Solution:_ This hack injects a pre-defined custom template into the Description
 
    ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-custom-template.png "Jira custom template")
 
-_Note:_ Templates should be stored externally in JSON format, as defined in the `REQUEST_URLS` object (see [Getting Started](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#getting-started) above). An object should be defined for each project, including unique templates for any (used) issue types (ex: Story, Bug, Epic, etc) of your choosing. Example JSON file: [https://www.npoint.io/docs/656bccf0972ed60b7bba](https://www.npoint.io/docs/656bccf0972ed60b7bba)
+_Note:_ Templates should be stored externally in JSON format, as defined in the `USER_TEMPLATE_URLS` object (see [Getting Started](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#getting-started) above). An object should be defined for each project, including unique templates for any (used) issue types (ex: Story, Bug, Epic, etc) of your choosing. Example JSON file: [https://www.npoint.io/docs/656bccf0972ed60b7bba](https://www.npoint.io/docs/656bccf0972ed60b7bba)
 
 ---
 
@@ -103,11 +103,11 @@ function makeFilterBadges() {
 
 _Problem:_ While the custom filters are useful at providing focus, they don’t display how many items satisfy the filter criteria. For labels that call attention to items, it’s not apparent to the recipient that there are issues that require their attention — without first applying the filter.
 
-_Solution:_ This hack adds badge counts to user-specified filters (ex: `Team-Review`, `Unpointed`) when viewing a project’s Backlog or Sprint Board.
+_Solution:_ This hack adds badge counts to user-specified filters (ex: `Team-Review`, `In Development`) when viewing a project’s Backlog or Sprint Board.
 
    ![alt text](https://github.com/madeofpixels/jira-hacks/blob/main/readme/jira-badges.png "Jira badges")
 
-_Note:_ To add / modify the list of filters where badge counts should be applied, modify the `COLOR_FILTER_MAP` object (see [Getting Started](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#getting-started) above).
+_Note:_ To add / modify the list of filters where badge counts should be applied, modify the `USER_LABELS_AND_STATUSES_TO_FILTERS` object (see [Getting Started](https://github.com/madeofpixels/jira-hacks/blob/main/README.md#getting-started) above).
 
 ---
 
