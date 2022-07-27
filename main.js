@@ -1,42 +1,36 @@
-// IMPORTANT: Prior to use, define REQUEST_URLS and COLOR_FILTER_MAP below.
+// IMPORTANT: Prior to use, uncomment and define USER_TEMPLATE_URLS and USER_LABELS_AND_STATUSES_TO_FILTERS below.
 
-/* USED BY: Inject Custom Template on Create Issue
-Custom templates are stored in https://api.npoint.io – you can define your own custom data source
-by following this structure for all entries: 'PROJECT_CODE': 'WEB_URL';
-
-Example:
-
-const REQUEST_URLS = {
-	'ABC': 'https://api.npoint.io/656bccf0972ed60b7bba', // Edit template at https://www.npoint.io/docs/656bccf0972ed60b7bba
-}
-*/
-
-// Uncomment and add your jira project/json template pairing(s):
-// const REQUEST_URLS = {
-// 	'PROJECT': 'https://URL_TO_TEMPLATES',
+// USED BY: Inject Custom Template on Create Issue
+// Custom templates are stored in https://api.npoint.io – you can define your own custom data source
+// by following this structure for all entries: 'PROJECT_CODE': 'URL_TO_TEMPLATE';
+// Example:
+// const USER_TEMPLATE_URLS = {
+// 	Format: 'PROJECT_CODE': 'URL_TO_TEMPLATE'
+// 	'ABC': 'https://api.npoint.io/656bccf0972ed60b7bba', // Edit template at https://www.npoint.io/docs/656bccf0972ed60b7bba
 // }
 
-/* USED BY: Display Filter Badge Counts
-Add an entry per filter to track the number of cards that satisfy that filter criteria by following this 
-structure for all entries: 
-'#HEX_VALUE': {xpath: '//span[contains(text(),"FILTER_TEXT")]', badge: null, count: 0}
+// Uncomment and add your Jira project/JSON template pairing(s):
+// const USER_TEMPLATE_URLS = {
+// 	'PROJECT_CODE': 'URL_TO_TEMPLATE',
+// }
 
-The hex key is taken from the [Board settings > Card colors > Color] value (ex: '#35d415')
-The xpath string is comes from the [Board settings > Card colors > Quick Filters] filter name (ex: Unpointed)
-
-Example:
-
-const COLOR_FILTER_MAP = {
-	'#cccccc': {xpath: '//span[contains(text(),"Unpointed")]', badge: null, count: 0}
-	, '#ee9900': {xpath: '//span[contains(text(),"No Labels")]', badge: null, count: 0}
-};
-*/
-
-// Uncomment and add your color/filter pairing(s):
-// const COLOR_FILTER_MAP = {
-// 	'#HEXVAL': {xpath: '//span[contains(text(),"SOME_TEXT")]', badge: null, count: 0}
+// USED BY: Display Filter Badge Counts
+// Add an entry per label/status to track the number of cards that satisfy that filter criteria by following this 
+// structure for all entries: 'LABEL_NAME': 'FILTER_NAME'
+// Label names are derived from label value(s) on your Jira issues
+// Filter names are derived from the [Board settings > Quick Filters > Name] values (ex: No Labels)
+// Note: Counts are created for all 'straightforward' labels and statuses (ie: map 1:1 and rely on the label/status name)
+// Example:
+// const USER_LABELS_AND_STATUSES_TO_FILTERS = {
+// 	Format: 'LABEL_OR_STATUS_NAME': 'FILTER_NAME'
+// 	'None': 'No Labels',
+// 	'In Development': 'In Development'
 // };
 
+// Uncomment and add your Jira label/filter pairing(s):
+// const USER_LABELS_AND_STATUSES_TO_FILTERS = {
+// 	'LABEL_OR_STATUS_NAME': 'FILTER_NAME'
+// };
 
 /*===== Jira (Epics): Display Smart Checklists below the Description field =====*/
 function makePositionSmartChecklist() {
@@ -88,13 +82,13 @@ function makeCustomTemplateInjector() {
 			localStorage.setItem('templates-created-on-date', new Date());
 		}
 		
-		if (localStorage.getItem('template-' + projectCode) !== null || REQUEST_URLS[projectCode] == undefined) {
+		if (localStorage.getItem('template-' + projectCode) !== null || USER_TEMPLATE_URLS[projectCode] == undefined) {
 			// Don't re-fetch if in same project or the project code is undefined
 			typeof(_callback) == 'function' && _callback(projectCode);
 			return;
 		}
 		
-		const requestURL = (REQUEST_URLS[projectCode] == undefined) ? REQUEST_URLS['DEFAULT'] : REQUEST_URLS[projectCode];
+		const requestURL = (USER_TEMPLATE_URLS[projectCode] == undefined) ? USER_TEMPLATE_URLS['DEFAULT'] : USER_TEMPLATE_URLS[projectCode];
 		const request = new Request(requestURL);
 		
 		try {
@@ -211,57 +205,52 @@ function makeCustomTemplateInjector() {
 function makeFilterBadges() {
 	const BOARD_MUTATION_CONFIG = {attributes: false, childList: true, subtree: true};
 
-	let currFilterNodes;
+	let labelsAndStatusesToFiltersMap = {};
 	let boardMutationNode;
 	let isBoardUpdateInProgress = false;
 
-	const _componentToHex = function(c) {
-		const hex = parseInt(c).toString(16);
-		return hex.length == 1 ? '0' + hex : hex;
-	}
-	
-	const _rgbToHex = function(rgbArr) {
-		return '#' + _componentToHex(rgbArr[0]) + _componentToHex(rgbArr[1]) + _componentToHex(rgbArr[2]);
-	}
-	
-	const _createBadge = function(colorKey, count) {
+	const _createBadge = function(count) {
 		const badge = document.createElement('span');
 		badge.classList.add('badge');
 		badge.innerHTML = count;
 		return badge;
 	}
-	
-	const _getGrabberCounts = function() {
-		const grabbers = document.querySelectorAll('div[class=ghx-grabber]');
+
+	const _getCardLabelAndStatusCounts = function() {
+		// App view has changed, empty existing object values
+		for (const [label, props] of Object.entries(labelsAndStatusesToFiltersMap)) { props.count = 0; }
+
+		const allCardLabels = document.querySelectorAll('span[data-tooltip^="Labels:"]');
+
+		allCardLabels.forEach(
+			cardLabels => {
+				cardLabels.outerText.split(', ').forEach(label => {
+					labelsAndStatusesToFiltersMap[label] && labelsAndStatusesToFiltersMap[label].count++;
+				});
+			}
+		);
 		
-		// Reset grabber counts (ie: in case they have dynamically changed)
-		for (const [colorKey, props] of Object.entries(COLOR_FILTER_MAP)) { props.count = 0; }
-	
-		// Tally the counts for each filter type
-		grabbers.forEach(
-			elt => {
-				const eltColor = _rgbToHex(elt.style.backgroundColor.replace('rgb(','').replace(')','').split(','));
-				if (COLOR_FILTER_MAP[eltColor]) { COLOR_FILTER_MAP[eltColor].count++; }
+		const allCardStatuses = document.querySelectorAll('span[data-tooltip^="Status:"]');
+		
+		allCardStatuses.forEach(
+			status => {
+				labelsAndStatusesToFiltersMap[status.outerText] && labelsAndStatusesToFiltersMap[status.outerText].count++;
 			}
 		);
 	}
 	
 	const _addBadgesToFilters = function() {
-		if (currFilterNodes.length == 0) { // Filters are not visible
-			return;
-		}
-		
 		let currBadge;
 		let filterElt;
 		
-		for (const [colorKey, props] of Object.entries(COLOR_FILTER_MAP)) {
-			filterElt = document.evaluate(props.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+		for (const [label, props] of Object.entries(labelsAndStatusesToFiltersMap)) {
+			filterElt = document.evaluate('//span[contains(text(), "' + props.filterName + '")]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 	
 			if (filterElt == null) { continue; }
 			
-			if (props.count > 0) { // Only update filter counts > 0
+			if (props.count > 0) { // Update filter if count > 0
 				if (filterElt.childNodes.length == 1) {
-					currBadge = _createBadge(colorKey, props.count);
+					currBadge = _createBadge(props.count);
 					props.badge = currBadge; // Store a ref to the badge
 					filterElt.appendChild(props.badge);
 				} else {
@@ -290,21 +279,45 @@ function makeFilterBadges() {
 	
 	const boardObserver = new MutationObserver(_onBoardMutation);
 	
+	const _getFilterNames = function () {
+		const filterButtons = document.querySelectorAll('#ghx-quick-filters ul:nth-child(2) button');
+		
+		labelsAndStatusesToFiltersMap = {}; // Reset as app view has changed
+		
+		// Map user-defined entries first (ex: Label name = 'None', Filter name = 'No Labels')
+		for (const [labelOrStatusName, filterName] of Object.entries(USER_LABELS_AND_STATUSES_TO_FILTERS)) {
+			labelsAndStatusesToFiltersMap[labelOrStatusName] = {filterName:filterName, badge: null, count: 0};
+		}
+		
+		// Next iterate through the filters (names) and map label names 1:1 for items that haven't already been defined above
+		filterButtons.forEach(
+			filterButton => {
+				if (!Object.values(USER_LABELS_AND_STATUSES_TO_FILTERS).includes(filterButton.outerText)) {
+					labelsAndStatusesToFiltersMap[filterButton.outerText] = {filterName:filterButton.outerText, badge: null, count: 0};
+				}
+			}	
+		);
+	}
+
 	const _onUpdate = function() {
 		if (isBoardUpdateInProgress) { return; }
 		isBoardUpdateInProgress = true;
 		
 		setTimeout(() => {
-			// Store all filter nodes - this list changes when App view changes
-			currFilterNodes = document.getElementsByClassName('sc-11jaxx1-0 LppZN');
-
-			// If the board/backlog filter list is present and closed, open it
-			const backlogFilterToggle = document.querySelector('div#ghx-quick-filters .jdgrw0-0.bsBhhk > button.css-7uss0q');
-			backlogFilterToggle && backlogFilterToggle.click();
-
-			_getGrabberCounts();
-			_addBadgesToFilters();
+			const backlogFilterToggle = document.querySelector('#ghx-quick-filters ul:first-child button.css-7uss0q');
 			
+			if (backlogFilterToggle) { // If the board/backlog filter list in the DOM but closed, open it and refresh the filter names
+				backlogFilterToggle.click();
+				_getFilterNames();
+			}
+			
+			const filterNodesInDOM = document.querySelectorAll('#ghx-quick-filters ul').length >= 2; // Quick filters (search, filter) spans across two lists
+
+			if (filterNodesInDOM) { 
+				_getCardLabelAndStatusCounts();
+				_addBadgesToFilters();
+			}
+
 			isBoardUpdateInProgress = false;
 			_enableBoardObserver()
 		}, 1250); // This isn't an exact science...
