@@ -37,23 +37,33 @@ cssElt.rel = 'stylesheet';
 document.head.append(cssElt);
 
 // USED BY: Inject Custom Template on Create Issue
-// Custom templates are stored in https://api.npoint.io
-// You can define your own custom data source by following this structure: 
-// 'PROJECT_CODE': 'WEB_URL';
+// Custom templates are stored in https://api.npoint.io – you can define your own custom data source
+// by following this structure for all entries: 'PROJECT_CODE': 'URL_TO_TEMPLATE';
+// Example:
+// const USER_TEMPLATE_URLS = {
+// 	Format: 'PROJECT_CODE': 'URL_TO_TEMPLATE'
+// 	'ABC': 'https://api.npoint.io/656bccf0972ed60b7bba', // Edit template at https://www.npoint.io/docs/656bccf0972ed60b7bba
+// }
 
-const REQUEST_URLS = {
-	'ABC': 'https://api.npoint.io/656bccf0972ed60b7bba', // Edit template at https://www.npoint.io/docs/656bccf0972ed60b7bba
+const USER_TEMPLATE_URLS = {
+	'PROJECT_CODE': 'URL_TO_TEMPLATE',
 }
 
 // USED BY: Display Filter Badge Counts
-// Add an entry (per filter) to track the number of cards that satisfy that filter criteria by following this structure: 
-// '#HEX_VALUE': {xpath: '//span[contains(text(),"FILTER_TEXT")]', badge: null, count: 0}
-// The hex key is taken from the [Board settings > Card colors > Color] value (ex: '#35d415')
-// The xpath string is comes from the [Board settings > Card colors > Quick Filters] filter name (ex: Unpointed)
+// Add an entry per label/status to track the number of cards that satisfy that filter criteria by following this 
+// structure for all entries: 'LABEL_NAME': 'FILTER_NAME'
+// Label names are derived from label value(s) on your Jira issues
+// Filter names are derived from the [Board settings > Quick Filters > Name] values (ex: No Labels)
+// Note: Counts are created for all 'straightforward' labels and statuses (ie: map 1:1 and rely on the label/status name)
+// Example:
+// const USER_LABELS_AND_STATUSES_TO_FILTERS = {
+// 	Format: 'LABEL_OR_STATUS_NAME': 'FILTER_NAME'
+// 	'None': 'No Labels',
+// 	'In Development': 'In Development'
+// };
 
-const COLOR_FILTER_MAP = {
-	'#cccccc': {xpath: '//span[contains(text(),"Unpointed")]', badge: null, count: 0}.
-	'#ee9900': {xpath: '//span[contains(text(),"No Labels")]', badge: null, count: 0}
+const USER_LABELS_AND_STATUSES_TO_FILTERS = {
+	'LABEL_OR_STATUS_NAME': 'FILTER_NAME'
 };
 
 const jsElt = document.createElement('script');
