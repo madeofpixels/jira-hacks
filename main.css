@@ -91,6 +91,10 @@
 	padding: 7px 9px;
 }
 
+#jira #ghx-quick-filters>ul>li button {
+	max-width: 285px;
+}
+
 #jira div.x1njga-6.fGAbGw {
 	display: none;
 }
