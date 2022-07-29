@@ -57,8 +57,7 @@ function makePositionSmartChecklist() {
 /*===== Jira: Inject Custom Template on Create Issue =====*/
 function makeCustomTemplateInjector() {
 	const CREATE_ISSUE_MUTATION_CONFIG = {attributes: true, childList: true, subtree: true};
-	
-	let currProjectPathname;
+
 	let currProjectCode;
 
 	const _fetchTemplates = async function(projectCode, _callback = undefined) {
@@ -208,6 +207,9 @@ function makeFilterBadges() {
 	let labelsAndStatusesToFiltersMap = {};
 	let boardMutationNode;
 	let isBoardUpdateInProgress = false;
+	let quickFiltersSection;
+	let quickFiltersToggle;
+	let currProjectPathname;
 
 	const _createBadge = function(count) {
 		const badge = document.createElement('span');
@@ -244,8 +246,8 @@ function makeFilterBadges() {
 		let filterElt;
 		
 		for (const [label, props] of Object.entries(labelsAndStatusesToFiltersMap)) {
-			filterElt = document.evaluate('//span[contains(text(), "' + props.filterName + '")]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-	
+			filterElt = document.evaluate('.//span[text()="' + props.filterName + '"]', document.querySelector('#ghx-quick-filters'), null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
 			if (filterElt == null) { continue; }
 			
 			if (props.count > 0) { // Update filter if count > 0
@@ -280,7 +282,8 @@ function makeFilterBadges() {
 	const boardObserver = new MutationObserver(_onBoardMutation);
 	
 	const _getFilterNames = function () {
-		const filterButtons = document.querySelectorAll('#ghx-quick-filters ul:nth-child(2) button');
+		let filterButtons = document.querySelectorAll('#ghx-quick-filters ul:nth-child(2) button');
+		filterButtons = (filterButtons.length == 0) ? document.querySelectorAll('#ghx-quick-filters ul:nth-child(1) li:nth-child(3) button') : filterButtons;
 		
 		labelsAndStatusesToFiltersMap = {}; // Reset as app view has changed
 		
@@ -304,10 +307,20 @@ function makeFilterBadges() {
 		isBoardUpdateInProgress = true;
 		
 		setTimeout(() => {
-			const backlogFilterToggle = document.querySelector('#ghx-quick-filters ul:first-child button.css-7uss0q');
-			
-			if (backlogFilterToggle) { // If the board/backlog filter list in the DOM but closed, open it and refresh the filter names
-				backlogFilterToggle.click();
+			quickFiltersSection = document.querySelector('#ghx-quick-filters ul:first-child');
+			quickFiltersToggle = document.evaluate("//button[contains(., 'Quick filters')]", quickFiltersSection, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+			if (quickFiltersToggle) {
+				let filterButtons = document.querySelectorAll('#ghx-quick-filters ul:nth-child(2) button');
+
+				if (!filterButtons.length) { // Toggle open the filter list only if it is visible and the quick filters button exists
+					quickFiltersToggle.click();
+					_getFilterNames();
+				}
+			}
+
+			if (currProjectPathname == null || currProjectPathname != window.location.pathname) {
+				currProjectPathname = window.location.pathname;
 				_getFilterNames();
 			}
 			
