@@ -60,34 +60,16 @@ function makeCustomTemplateInjector() {
 
 	let currProjectCode;
 
-	const _fetchTemplates = async function(projectCode, _callback = undefined) {
-		// Force expiry of stored templates every 7 days, to ensure "permanently opened" tabs receive version updates
-		if (localStorage.getItem('templates-created-on-date') !== null) {
-			const templatesCreatedOnDate = new Date(localStorage.getItem('templates-created-on-date'));
-			const currDate = new Date();
-			const diffDatesByTime = currDate.getTime() - templatesCreatedOnDate.getTime();
-			const diffDatesByDays = diffDatesByTime / (1000 * 3600 * 24);
-			
-			if (diffDatesByDays > 7) { // Invalidate stored templates that are older than 7 days
-				for (key in localStorage) { 
-					if (key.indexOf('template-') == 0) { 
-						localStorage.removeItem(key);
-					}
-				}
-				
-				localStorage.setItem('templates-created-on-date', new Date());
-			}
-		} else { // First time, store the date
-			localStorage.setItem('templates-created-on-date', new Date());
-		}
-		
-		if (localStorage.getItem('template-' + projectCode) !== null || USER_TEMPLATE_URLS[projectCode] == undefined) {
+	const _fetchProjectTemplates = async function(projectCode, _callback = undefined) {
+		const templateSource = (localStorage.getItem('templates-all-projects') != null) ? JSON.parse(localStorage.getItem('templates-all-projects')) : USER_TEMPLATE_URLS;
+		const requestURL = templateSource[projectCode];
+
+		if (localStorage.getItem('template-' + projectCode) !== null || requestURL == undefined) {
 			// Don't re-fetch if in same project or the project code is undefined
 			typeof(_callback) == 'function' && _callback(projectCode);
 			return;
 		}
 		
-		const requestURL = (USER_TEMPLATE_URLS[projectCode] == undefined) ? USER_TEMPLATE_URLS['DEFAULT'] : USER_TEMPLATE_URLS[projectCode];
 		const request = new Request(requestURL);
 		
 		try {
@@ -96,6 +78,8 @@ function makeCustomTemplateInjector() {
 			
 			if (typeof jsonResponse == 'object') {
 				localStorage.setItem('template-' + projectCode, JSON.stringify(jsonResponse));
+			} else {
+				throw new Error('_fetchProjectTemplates::Invalid JSON response');
 			}
 			
 			typeof(_callback) == 'function' && _callback(projectCode);
@@ -111,7 +95,7 @@ function makeCustomTemplateInjector() {
 			if (createIssueMutationNode != null) {
 				createIssueObserver.observe(createIssueMutationNode, CREATE_ISSUE_MUTATION_CONFIG);
 			}
-		}, 1); // Wait for the next tick (ie: Create Issue modal to render)
+		}, 100); // Wait for the Create Issue modal to render
 	}
 
 	const _getIssueTemplate = function() {
@@ -124,8 +108,7 @@ function makeCustomTemplateInjector() {
 		if (selectedDDProjectCode && selectedDDProjectCode != currProjectCode) {
 			const createDescriptionField = document.querySelector('.ak-editor-content-area div[aria-label="Main content area"]');			
 			createDescriptionField.innerHTML = 'Loading template...';
-			
-			_fetchTemplates(selectedDDProjectCode, _injectIssueTemplate);
+			_fetchProjectTemplates(selectedDDProjectCode, _injectIssueTemplate);
 		} else {
 			_injectIssueTemplate(currProjectCode);
 		}
@@ -150,7 +133,8 @@ function makeCustomTemplateInjector() {
 			createDescriptionField.innerHTML = ''; // Clear the loading state
 		}
 
-		setTimeout(() => { document.getElementById('issue-create.ui.modal.modal-body').scrollTop = 0; }, 1); // Wait for the next tick (ie: modal body to render)
+		// Wait for the modal body to render
+		setTimeout(() => { document.querySelector('div[data-testid="issue-create.ui.modal.modal-wrapper.modal--scrollable"]').scrollTop = 0; }, 10);
 	}
 	
 	const _onCreateIssueMutation = function(mutationList, createIssueObserver) {
@@ -170,6 +154,53 @@ function makeCustomTemplateInjector() {
 
 	const createIssueObserver = new MutationObserver(_onCreateIssueMutation);
 	
+	const _clearTemplatesIfExpired = function () {
+		// Force expiry of stored templates every 7 days, to ensure "permanently opened" tabs receive version updates
+		if (localStorage.getItem('templates-created-on-date') !== null) {
+			const templatesCreatedOnDate = new Date(localStorage.getItem('templates-created-on-date'));
+			const currDate = new Date();
+			const diffDatesByTime = currDate.getTime() - templatesCreatedOnDate.getTime();
+			const diffDatesByDays = diffDatesByTime / (1000 * 3600 * 24);
+			
+			if (diffDatesByDays > 7) { // Invalidate stored templates that are older than 7 days
+				for (key in localStorage) {
+					if (key.search(/^(template)(s?)(-)/) == 0) { 
+						localStorage.removeItem(key);
+					}
+				}
+				
+				localStorage.setItem('templates-created-on-date', new Date());
+			}
+		} else { // First time, store the date
+			localStorage.setItem('templates-created-on-date', new Date());
+		}
+	}
+
+	const _getProjectTemplateUrls = async function (_callback = undefined) {
+		_clearTemplatesIfExpired();
+		
+		if (localStorage.getItem('templates-all-projects') != null || typeof(USER_TEMPLATE_URLS) != 'undefined') {
+			// Use the stored templates
+			typeof(_callback) == 'function' && _callback();
+		} else if (typeof(REMOTE_PROJECT_TEMPLATES_URL) != 'undefined' && localStorage.getItem('templates-all-projects') == null) {
+			try {
+				const request = new Request(REMOTE_PROJECT_TEMPLATES_URL);
+				const response = await fetch(request);
+				const jsonResponse = await response.json();
+				
+				if (typeof jsonResponse == 'object') {
+					localStorage.setItem('templates-all-projects', JSON.stringify(jsonResponse));
+				} else {
+					throw new Error('getProjectTemplateUrls::Invalid JSON response');
+				}
+				
+				typeof(_callback) == 'function' && _callback();
+			} catch (e) {
+				console.error('Error fetching templates: ', e);
+			}
+		}
+	}
+
 	const _onUpdate = function() {
 		let newProjectPathname = window.location.pathname.split('projects/');
 		let newProjectCode = newProjectPathname.length == 1 ? undefined : newProjectPathname[1].split('/')[0];
@@ -178,18 +209,20 @@ function makeCustomTemplateInjector() {
 		setTimeout(() => {
 			document.getElementById('createGlobalItem').addEventListener('click', _listenForCreateIssueMutations);
 			document.getElementById('createGlobalItemIconButton').addEventListener('click', _listenForCreateIssueMutations);
-		}, 1); // Wait for the next tick (ie: buttons to re-render)
+		}, 10); // Wait for the buttons to re-render
 
 		if (newProjectCode == undefined) {
 			return; 
 		}
 		
-		if (newProjectCode != currProjectCode) { // Switching projects
-			currProjectCode = newProjectCode;
-			_fetchTemplates(currProjectCode);
-		}
+		_getProjectTemplateUrls(() => {
+			if (newProjectCode != currProjectCode) { // Switching projects
+				currProjectCode = newProjectCode;
+				_fetchProjectTemplates(currProjectCode);
+			}
+		});
 	}
-	
+
 	const _init = function() {
 		_onUpdate();
 		window.addEventListener('locationchange', _onUpdate);
@@ -335,12 +368,12 @@ function makeFilterBadges() {
 			_enableBoardObserver()
 		}, 1250); // This isn't an exact science...
 	}
-	
+
 	const _init = function(e) {
 		_onUpdate();
 		window.addEventListener('locationchange', _onUpdate);
 	}
-	
+
 	return ({
 		init: () => { _init(); }
 	});
