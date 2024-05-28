@@ -1,0 +1,62 @@
+/*===== Jira: Filter Backlog by Sub Team =====*/
+
+/* Remove outline on Sprint elt focus */
+div._7ehi1vt6:focus {
+	box-shadow: none;
+}
+
+/* Hide divider elements when filtering Sprints */
+div[data-testid^="software-backlog.card-list.divider.container"] {
+	display: none;
+}
+
+div.JIRAHACK-hide-elt {
+	display: none;
+}
+
+h1.css-v0wrut { /* Heading: Backlog */
+	float: left;
+	margin-right: 10px;
+}
+
+#JIRAHACK-team-filters {
+	float: left;
+	display: flex;
+	margin-top: 4px;
+	column-gap: 8px;
+}
+
+#JIRAHACK-team-filters button {
+    align-items: baseline;
+    line-height: 2.28571em;
+	padding: 0px 10px;
+	border-width: 0px;
+    border-radius: var(--ds-border-radius, 3px);
+    font-size: inherit;
+    font-weight: 500;
+    max-width: 100%;
+    transition: background 0.1s ease-out 0s, box-shadow 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38) 0s;
+    white-space: nowrap;
+    background: var(--ds-background-neutral, rgba(9, 30, 66, 0.08));
+    cursor: pointer;
+    outline: none;
+    color: var(--ds-text, #42526E);
+}
+
+#JIRAHACK-team-filters button:hover {
+	background-color: rgba(9, 30, 66, 0.14);
+}
+
+#JIRAHACK-team-filters button.JIRAHACK-btn-selected {
+	color: rgb(12, 102, 228);
+	background-color: rgb(233, 242, 255);
+}
+
+#JIRAHACK-team-filters button.JIRAHACK-btn-onfocus {
+	color: rgb(12, 102, 228);
+	background-color: rgb(233, 242, 255);
+	outline-color: rgb(56, 139, 255);
+	outline-offset: 2px;
+	outline-style: solid;
+	outline-width: 2px;
+}
