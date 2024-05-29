@@ -1,5 +1,5 @@
 /*===== Jira: Filter Backlog by Sub Team =====*/
-function makeFilterBySubTeam() {
+function makeFilterBacklogBySubTeam() {
 	// USER_SPRINTS_TO_HIDE_BY_SUB_TEAM format: '{Key (SubTeamIdentifier)}': ['{SearchValue 1}', '{SearchValue 2}',... '{SearchValue n}'],
 	// 
 	// Example:
@@ -138,7 +138,7 @@ function makeFilterBySubTeam() {
 	
 	const _init = function(e) {
 		// If no user-defined Sprint key-value pairs are defined (USER_SPRINTS_TO_HIDE_BY_SUB_TEAM), exit
-		if (Object.keys(sprintsToHideBySubTeam).length == 0)) { return; }
+		if (Object.keys(sprintsToHideBySubTeam).length == 0) { return; }
 
 		_onLocationChange();
 		window.addEventListener('locationchange', _onLocationChange);
