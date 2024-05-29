@@ -13,7 +13,7 @@ function makeFilterBySubTeam() {
 	// For Key = 'Team A', SearchValues = 'Team B', 'Team C'
 	// This will create a button named 'Team A' in the filter list and clicking it will hide Sprints
 	// that contain the search value. For instance: 'Team B BACKLOG', 'Team B Active', 'Sprint - Team C'
-	const sprintsToHideBySubTeam = (Object.keys(USER_SPRINTS_TO_HIDE_BY_SUB_TEAM).length == 0) ? USER_SPRINTS_TO_HIDE_BY_SUB_TEAM : {};
+	const sprintsToHideBySubTeam = (typeof USER_SPRINTS_TO_HIDE_BY_SUB_TEAM != "undefined" && Object.keys(USER_SPRINTS_TO_HIDE_BY_SUB_TEAM).length > 0) ? USER_SPRINTS_TO_HIDE_BY_SUB_TEAM : {};
 	
 	const filterBtnNames = Object.keys(sprintsToHideBySubTeam);
 	
