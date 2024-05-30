@@ -1,5 +1,5 @@
 /*===== Jira: Filter Backlog by Sub Team =====*/
-function makeFilterBacklogBySubTeam() {
+function hackFilterBacklogBySubTeam() {
 	// USER_SPRINTS_TO_HIDE_BY_SUB_TEAM format: '{Key (SubTeamIdentifier)}': ['{SearchValue 1}', '{SearchValue 2}',... '{SearchValue n}'],
 	// 
 	// Example:
