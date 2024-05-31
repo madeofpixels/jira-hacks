@@ -60,7 +60,16 @@ function makeJiraHacks() {
 		'DisplayFilterBadgeCounts': [],	// TBD
 	};
 	
-	const initJiraHacks = function() {
+	const _initJiraHacks = function(hackList) {
+		hackList.forEach(
+			hackName => {
+				// Ensure the function exists and initialize
+				typeof window['hack' + hackName] == 'function' && window['hack' + hackName]().init();	
+			}
+		);
+	};
+	
+	const _loadJiraHacks = function() {
 		let hackEnabledList = [];
 
 		let hackCSSFilesToLoad = [];
@@ -71,8 +80,11 @@ function makeJiraHacks() {
 
 		for (const [hackName, hackIsEnabled] of Object.entries(JIRA_HACKS)) {
 			if (hackIsEnabled) {
-				typeof JIRA_HACKS_FILES[hackName][0] !== 'undefined' && hackJSFilesToLoad.push(JIRA_HACKS_FILES[hackName][0]);
+				// Don't load the hack if it exists locally
+				typeof window['hack' + hackName] !== 'function' && typeof JIRA_HACKS_FILES[hackName][0] !== 'undefined' && hackJSFilesToLoad.push(JIRA_HACKS_FILES[hackName][0]);
+
 				typeof JIRA_HACKS_FILES[hackName][1] !== 'undefined' && hackCSSFilesToLoad.push(JIRA_HACKS_FILES[hackName][1]);
+				
 				hackEnabledList.push(hackName);
 			}
 		}
@@ -84,21 +96,17 @@ function makeJiraHacks() {
 		
 		if (hackJSFilesToLoad.length > 0) {
 			combinedJSHacksToLoad += hackJSFilesToLoad.join(',' + JIRA_HACKS_REPO_URL + '@' + JIRA_HACKS_VERSION + '/');
-			loadScript('text/javascript', combinedJSHacksToLoad, () => {
-				hackEnabledList.forEach(
-					hackName => {
-						// Ensure the function exists and initialize
-						typeof window['hack' + hackName] == 'function' && window['hack' + hackName]().init();	
-					}
-				);
-			});
+			loadScript('text/javascript', combinedJSHacksToLoad, () => { _initJiraHacks(hackEnabledList); });
+		} else {
+			// All hacks are defined locally
+			_initJiraHacks(hackEnabledList);
 		}
 	};
     
 	const _init = function() {
 		// Confirm we're in Jira and the user has created the JIRA_HACKS object
 		if (window.location.href.includes('jira') && Object.keys(JIRA_HACKS).length > 0) {
-			window.onload = initJiraHacks;
+			window.onload = _loadJiraHacks;
 		}
 	};
 
