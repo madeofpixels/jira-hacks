@@ -56,7 +56,7 @@ function makeJiraHacks() {
 	
 	const JIRA_HACKS_FILES = {
 		'FilterBacklogBySubTeam': ['hackFilterBacklogBySubTeam.js', 'hackFilterBacklogBySubTeam.css'],
-		'CustomTemplateInjector': [], // TBD
+		'CustomTemplateInjector': ['hackCustomTemplateInjector.js'],
 		'DisplayFilterBadgeCounts': [],	// TBD
 	};
 	
