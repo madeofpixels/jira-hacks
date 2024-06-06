@@ -47,9 +47,14 @@ function hackCustomTemplateInjector() {
     };
     
     const _listenForCreateIssueMutations = function(e) {
+		const minimizedCreateIssueNode = document.getElementById('minimised-issue-create-dropzone-container');
+		
+		// Don't disconnect the observer if the minimized Create Issue button is rendered on load
+		if (minimizedCreateIssueNode == null) { createIssueObserver.disconnect(); }
+
 		setTimeout(() => {
 			const createIssueMutationNode = document.getElementById('issue-create-modal-dropzone-container');
-		
+
 			if (createIssueMutationNode != null) {
 				createIssueObserver.observe(createIssueMutationNode, CREATE_ISSUE_MUTATION_CONFIG);
 			}
@@ -76,7 +81,7 @@ function hackCustomTemplateInjector() {
 			createDescriptionField.innerHTML = '';
 			return;
 		}
-		
+
 		const issueTypePicker = document.getElementById('issue-create.ui.modal.create-form.type-picker.issue-type-select');
 		const selectedIssueType = (issueTypePicker && issueTypePicker.innerText) || null;
 		const currProjectTemplates = JSON.parse(localStorage.getItem('JIRAHACK-template-' + projectCode));
@@ -88,7 +93,11 @@ function hackCustomTemplateInjector() {
 		}
 		
 		// Wait for the modal body to render
-		setTimeout(() => { document.querySelector('div[data-testid="issue-create.ui.modal.modal-wrapper.modal--scrollable"]').scrollTop = 0; }, 10);
+		setTimeout(() => {
+			// First node: Full screen modal, Second: Bottom creation pane
+			const scrollableContent = document.querySelector('div[data-testid="issue-create.ui.modal.modal-wrapper.modal--scrollable"]') || document.querySelector('div[data-testid="minimizable-modal.ui.modal-container.mini"]').childNodes[1]; 
+			scrollableContent && (scrollableContent.scrollTop = 0);
+		}, 10);
     };
     
     const _onCreateIssueMutation = function(mutationList, createIssueObserver) {
@@ -96,13 +105,7 @@ function hackCustomTemplateInjector() {
 			if (mutation.target.className.includes('ak-editor-content-area') && mutation.type == 'childList') { // Create Issue description field has rendered
 				_getIssueTemplate();
 				return;
-			}
-		
-			if (mutation.target.className == "ua-chrome" && mutation.removedNodes.length > 0) { // Create Issue modal is closing, tidy up
-				const modalBody = document.getElementById('issue-create.ui.modal.modal-body');
-				if (modalBody == null) { createIssueObserver.disconnect(); }
-				return;
-			}
+			}		
 		}
     };
 
@@ -157,13 +160,20 @@ function hackCustomTemplateInjector() {
 
     const _onUpdate = function() {
 		let newProjectPathname = window.location.pathname.split('projects/');
-		let newProjectCode = newProjectPathname.length == 1 ? undefined : newProjectPathname[1].split('/')[0];
+		let newProjectCode = newProjectPathname.length == 1 ? undefined : (newProjectPathname[1].includes('/') ? newProjectPathname[1].split('/')[0] : newProjectPathname[1]);
 
 		// Click event listeners are removed (ie: switching to the same project), re-add
 		setTimeout(() => {
 			document.getElementById('createGlobalItem').addEventListener('click', _listenForCreateIssueMutations);
 			document.getElementById('createGlobalItemIconButton').addEventListener('click', _listenForCreateIssueMutations);
+			
+			_listenForCreateIssueMutations(); // Check to see if the Create Issue modal is rendered on page load
 		}, 10); // Wait for the buttons to re-render
+
+		setTimeout(() => {
+			const minimizedCreateIssueNode = document.getElementById('minimised-issue-create-dropzone-container');
+			minimizedCreateIssueNode && minimizedCreateIssueNode.addEventListener('click', _listenForCreateIssueMutations);
+		}, 100);
 
 		if (newProjectCode == undefined) { return; }
 		
@@ -184,3 +194,4 @@ function hackCustomTemplateInjector() {
    	 init: () => { _init(); }
     });
 }
+
