@@ -14,9 +14,11 @@ div.JIRAHACK-hide-elt {
 	display: none;
 }
 
-h1.css-v0wrut { /* Heading: Backlog */
+div[data-testid="software-backlog.backlog"] h1 { /* Heading: Backlog */
 	float: left;
 	margin-right: 10px;
+	height: 32px;
+    line-height: 32px;
 }
 
 #JIRAHACK-team-filters {
