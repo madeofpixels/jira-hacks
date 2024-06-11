@@ -14,7 +14,7 @@ div.JIRAHACK-hide-elt {
 	display: none;
 }
 
-div[data-testid="software-backlog.backlog"] h1 { /* Heading: Backlog */
+div[data-testid="software-backlog.page-header"] h1 { /* Heading: Backlog */
 	float: left;
 	margin-right: 10px;
 	height: 32px;
