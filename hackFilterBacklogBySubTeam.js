@@ -129,24 +129,25 @@ function hackFilterBacklogBySubTeam() {
 		if (isBoardUpdateInProgress) { return; }
 		isBoardUpdateInProgress = true;
 
-		// Clean up previous elts
-		const prevFilterBySubTeamsElements = document.getElementById('JIRAHACK-team-filters');
-		prevFilterBySubTeamsElements && prevFilterBySubTeamsElements.remove();
+		setTimeout(() => {
+			// Clean up previous elts
+			const prevFilterBySubTeamsElements = document.getElementById('JIRAHACK-team-filters');
+			prevFilterBySubTeamsElements && prevFilterBySubTeamsElements.remove();
+			
+			currProjectCode = window.location.pathname.split('projects/')[1].split('/')[0];
 		
-		currProjectCode = window.location.pathname.split('projects/')[1].split('/')[0];
+			sprintsToHideBySubTeam = USER_SUB_TEAM_SPRINTS_TO_HIDE_BY_PROJECT[currProjectCode];
+			
+			if (typeof sprintsToHideBySubTeam != 'object' || Object.keys(sprintsToHideBySubTeam).length === 0) { return; }
 	
-		sprintsToHideBySubTeam = USER_SUB_TEAM_SPRINTS_TO_HIDE_BY_PROJECT[currProjectCode];
-		
-		if (typeof sprintsToHideBySubTeam != 'object' || Object.keys(sprintsToHideBySubTeam).length === 0) { return; }
-
-		const backlogHeaderElt = document.querySelector('h1');
-		const filterBySubTeamsElements = _createFilterContent();
-		backlogHeaderElt.after(filterBySubTeamsElements);
-		
-		_setFilterView();
-
-		isBoardUpdateInProgress = false;
-		_enableBoardObserver();
+			const backlogHeaderElt = document.querySelector('h1');
+			const filterBySubTeamsElements = _createFilterContent();
+			backlogHeaderElt.after(filterBySubTeamsElements);
+			
+			_setFilterView();
+	
+			isBoardUpdateInProgress = false;
+		}, 1250); // This is not an exact science..
 	};
 	
 	const _enableBoardObserver = function() {
@@ -157,7 +158,6 @@ function hackFilterBacklogBySubTeam() {
 	const _onBoardMutation = function(mutationList, boardObserver) {
 		if (isBoardUpdateInProgress) { return; }
 		
-		boardObserver.disconnect();
 		_onUpdate();
 	};
 
@@ -171,7 +171,12 @@ function hackFilterBacklogBySubTeam() {
 		const firstSprintElt = document.querySelector('div[data-testid^="software-backlog.card-list.container"]');
 
 		// Test to see whether the Sprints have rendered. If not, wait a little longer
-		firstSprintElt != null ? _onUpdate() : setTimeout(_onLocationChange, 100);
+		if (firstSprintElt != null) {
+			_enableBoardObserver();
+			_onUpdate();
+		} else {
+			setTimeout(_onLocationChange, 100);
+		}
 	};
 	
 	const _init = function(e) {
