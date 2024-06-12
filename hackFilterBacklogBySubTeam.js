@@ -1,23 +1,30 @@
 /*===== Jira: Filter Backlog by Sub Team =====*/
 function hackFilterBacklogBySubTeam() {
-	// USER_SPRINTS_TO_HIDE_BY_SUB_TEAM format: '{Key (SubTeamIdentifier)}': ['{SearchValue 1}', '{SearchValue 2}',... '{SearchValue n}'],
-	// 
+	// USER_SUB_TEAM_SPRINTS_TO_HIDE_BY_PROJECT format:
+	// 'Project Code': { 'Key (SubTeamIdentifier)': ['SearchValue 1', 'SearchValue 2',... 'SearchValue n'] }
+	//
 	// Example:
 	// {
-	// 	'Team A': ['Team B', 'Team C'],
-	// 	'Team B': ['Team A'], // show Team C sprints
-	// 	'Team C': ['Team A', 'Team B']
-	// };
+	//	'ABC': {
+	//		'Team A': ['Team B', 'Team C'],
+	//		'Team B': ['Team A'],
+	//		'Team C': ['Team A', 'Team B']
+	// 	},
+	// 	'XYZ': {
+	// 		'Team 1': ['Team 2'],
+	// 		'Team 2': ['Team 1', 'Enhancements']
+	// 	}
+	// }
 	// 
-	// This will match all Sprints containing the specified key(s):
-	// For Key = 'Team A', SearchValues = 'Team B', 'Team C'
-	// This will create a button named 'Team A' in the filter list and clicking it will hide Sprints
-	// that contain the search value. For instance: 'Team B BACKLOG', 'Team B Active', 'Sprint - Team C'
-	const sprintsToHideBySubTeam = (typeof USER_SPRINTS_TO_HIDE_BY_SUB_TEAM != "undefined" && Object.keys(USER_SPRINTS_TO_HIDE_BY_SUB_TEAM).length > 0) ? USER_SPRINTS_TO_HIDE_BY_SUB_TEAM : {};
-	
-	const filterBtnNames = Object.keys(sprintsToHideBySubTeam);
-	
+	// In Jira project ABC, this will generate filter buttons named: Team A, Team B and Team C
+	// Clicking on 'Team A' will hide any Sprints on the backlog that contain the search terms "Team B" or "Team C"
+
+	const BOARD_MUTATION_CONFIG = {attributes: false, childList: true, subtree: false};
+
+	let currProjectCode;
 	let currFilterBtn;
+	let boardMutationNode;
+	let sprintsToHideBySubTeam;
 	let isBoardUpdateInProgress = false;
 
 	const _updateCSSDisplayForSprints = function(hideSprintList) {
@@ -29,16 +36,24 @@ function hackFilterBacklogBySubTeam() {
 		);
 		
 		if (hideSprintList.length == 0) { return; }
-				
-		hideSprintList.forEach(
-			hideSprintName => {
-				sprintElts.forEach(
-					sprintElt => {
+
+		sprintElts.forEach(
+			sprintElt => {
+				hideSprintList.forEach(
+					hideSprintName => {
 						// Determine if the Sprint's name includes one of the filter (hide) values
-						sprintElt.querySelector('div.ahoa2g-3.dWYuvJ').textContent.includes(hideSprintName) ? sprintElt.classList.add('JIRAHACK-hide-elt') : null;
-					}	
+						let sprintEltHeading = sprintElt.querySelector('h2');
+						let sprintFirstEltIsSpan = sprintElt.childNodes[0];
+						
+						// If this is a newly created Sprint (ie: it includes a <span> elt), do NOT hide it
+						if (sprintEltHeading === null || sprintFirstEltIsSpan.tagName == 'SPAN') { return; }
+						else if (sprintEltHeading.textContent.includes(hideSprintName)) {
+							sprintElt.classList.add('JIRAHACK-hide-elt');
+							return;
+						}
+					}
 				);
-			}
+			}	
 		);
 	};
 	
@@ -57,7 +72,7 @@ function hackFilterBacklogBySubTeam() {
 		
 		// Update the selected filter button styles
 		currFilterBtn = e.target;
-		localStorage.setItem('JIRAHACK-subTeamFilter', currFilterBtn.className);
+		localStorage.setItem('JIRAHACK-subTeamFilter-' + currProjectCode, currFilterBtn.className);
 		
 		if (currFilterBtn.ignoreBlurEffect) {
 			currFilterBtn.ignoreBlurEffect = false;
@@ -73,7 +88,7 @@ function hackFilterBacklogBySubTeam() {
 	const _createFilterBtn = function(filterName) {
 		let filterBtn = document.createElement('button');
 		
-		filterBtn.classList.add(_getFilterBtnClassName(filterName));
+		filterBtn.classList.add(_getFilterBtnClassName(filterName.replaceAll('.', '')));
 		filterBtn.innerHTML = filterName;
 		filterBtn.addEventListener('click', _filterSprintView);
 		
@@ -81,6 +96,8 @@ function hackFilterBacklogBySubTeam() {
 	};
 	
 	const _createFilterContent = function() {
+		const filterBtnNames = Object.keys(sprintsToHideBySubTeam);
+		
 		const parent = document.createElement('div');
 		parent.id = 'JIRAHACK-team-filters';
 		
@@ -96,34 +113,55 @@ function hackFilterBacklogBySubTeam() {
 	};
 	
 	const _setFilterView = function() {
-		let filterClassName = localStorage.getItem('JIRAHACK-subTeamFilter');
+		let filterClassName = localStorage.getItem('JIRAHACK-subTeamFilter-' + currProjectCode);
 		
 		if (filterClassName == null) {
 			filterClassName = _getFilterBtnClassName('All');
-			localStorage.setItem('JIRAHACK-subTeamFilter', filterClassName);
+			localStorage.setItem('JIRAHACK-subTeamFilter-' + currProjectCode, filterClassName);
 		}
 		
-		const currFilterBtn = document.querySelector('#JIRAHACK-team-filters .' + filterClassName);
+		const currFilterBtn = document.querySelector('#JIRAHACK-team-filters .' + filterClassName.replaceAll('.', ''));
 		currFilterBtn.ignoreBlurEffect = true;
 		currFilterBtn.click();
 	};
 	
 	const _onUpdate = function() {
-		let filterContentParent = document.querySelector('#JIRAHACK-team-filters');
-		
-		if (isBoardUpdateInProgress || filterContentParent !== null) { return; }
+		if (isBoardUpdateInProgress) { return; }
 		isBoardUpdateInProgress = true;
+
+		// Clean up previous elts
+		const prevFilterBySubTeamsElements = document.getElementById('JIRAHACK-team-filters');
+		prevFilterBySubTeamsElements && prevFilterBySubTeamsElements.remove();
 		
+		currProjectCode = window.location.pathname.split('projects/')[1].split('/')[0];
+	
+		sprintsToHideBySubTeam = USER_SUB_TEAM_SPRINTS_TO_HIDE_BY_PROJECT[currProjectCode];
+		
+		if (typeof sprintsToHideBySubTeam != 'object' || Object.keys(sprintsToHideBySubTeam).length === 0) { return; }
+
 		const backlogHeaderElt = document.querySelector('h1');
-		
 		const filterBySubTeamsElements = _createFilterContent();
 		backlogHeaderElt.after(filterBySubTeamsElements);
 		
-		// Check to see if Sprints were previously filtered
 		_setFilterView();
 
 		isBoardUpdateInProgress = false;
+		_enableBoardObserver();
 	};
+	
+	const _enableBoardObserver = function() {
+		boardMutationNode = document.querySelector('div[data-testid="software-backlog.backlog-content.scrollable"]');
+		boardMutationNode && boardObserver.observe(boardMutationNode, BOARD_MUTATION_CONFIG);
+	};
+
+	const _onBoardMutation = function(mutationList, boardObserver) {
+		if (isBoardUpdateInProgress) { return; }
+		
+		boardObserver.disconnect();
+		_onUpdate();
+	};
+
+	const boardObserver = new MutationObserver(_onBoardMutation);
 
 	const _onLocationChange = function() {
 		if (!window.location.href.includes('backlog')) { return; }
@@ -131,14 +169,14 @@ function hackFilterBacklogBySubTeam() {
 		isBoardUpdateInProgress = false;
 		
 		const firstSprintElt = document.querySelector('div[data-testid^="software-backlog.card-list.container"]');
-		
+
 		// Test to see whether the Sprints have rendered. If not, wait a little longer
 		firstSprintElt != null ? _onUpdate() : setTimeout(_onLocationChange, 100);
 	};
 	
 	const _init = function(e) {
-		// If no user-defined Sprint key-value pairs are defined (USER_SPRINTS_TO_HIDE_BY_SUB_TEAM), exit
-		if (Object.keys(sprintsToHideBySubTeam).length == 0) { return; }
+		// If no user-defined Sprint key-value pairs are defined, exit
+		if (typeof USER_SUB_TEAM_SPRINTS_TO_HIDE_BY_PROJECT == "undefined" || Object.keys(USER_SUB_TEAM_SPRINTS_TO_HIDE_BY_PROJECT).length == 0) { return; }
 
 		_onLocationChange();
 		window.addEventListener('locationchange', _onLocationChange);
