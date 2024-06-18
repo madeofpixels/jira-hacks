@@ -173,6 +173,13 @@ function hackCustomTemplateInjector() {
 		setTimeout(() => {
 			const minimizedCreateIssueNode = document.getElementById('minimised-issue-create-dropzone-container');
 			minimizedCreateIssueNode && minimizedCreateIssueNode.addEventListener('click', _listenForCreateIssueMutations);
+
+			document.getElementById('ak-main-content').addEventListener('click', (e) => {
+			    const button = e.target.closest('button');
+
+				// Create Issue button in Epics pane has been clicked, prepare template injection			    
+			    if (button.innerText == 'Create issue') { _listenForCreateIssueMutations(); }
+			});	
 		}, 100);
 
 		if (newProjectCode == undefined) { return; }
