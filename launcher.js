@@ -56,8 +56,7 @@ function makeJiraHacks() {
 	
 	const JIRA_HACKS_FILES = {
 		'FilterBacklogBySubTeam': ['hackFilterBacklogBySubTeam.js', 'hackFilterBacklogBySubTeam.css'],
-		'CustomTemplateInjector': ['hackCustomTemplateInjector.js'],
-		'DisplayFilterBadgeCounts': [],	// TBD
+		'CustomTemplateInjector': ['hackCustomTemplateInjector.js']
 	};
 	
 	const _initJiraHacks = function(hackList) {
@@ -105,7 +104,7 @@ function makeJiraHacks() {
     
 	const _init = function() {
 		// Confirm we're in Jira and the user has created the JIRA_HACKS object
-		if (window.location.href.includes('jira') && Object.keys(JIRA_HACKS).length > 0) {
+		if ((window.location.href.includes('jira') || window.location.href.includes('atlassian')) && Object.keys(JIRA_HACKS).length > 0) {
 			window.onload = _loadJiraHacks;
 		}
 	};

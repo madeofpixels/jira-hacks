@@ -159,8 +159,14 @@ function hackCustomTemplateInjector() {
     };
 
     const _onUpdate = function() {
-		let newProjectPathname = window.location.pathname.split('projects/');
-		let newProjectCode = newProjectPathname.length == 1 ? undefined : (newProjectPathname[1].includes('/') ? newProjectPathname[1].split('/')[0] : newProjectPathname[1]);
+		let newProjectCode;
+		
+		if (window.location.pathname.includes('projects/')) { // Ex: /projects/{project code}/boards/...
+			let newProjectPathname = window.location.pathname.split('projects/');
+			newProjectCode = (newProjectPathname[1].includes('/') ? newProjectPathname[1].split('/')[0] : newProjectPathname[1]);
+		} else if (window.location.pathname.includes('browse/')) { // Ex: /browse/{project code}-1234
+			newProjectCode = window.location.pathname.split('browse/')[1].split('-')[0];
+		}
 
 		// Click event listeners are removed (ie: switching to the same project), re-add
 		setTimeout(() => {
