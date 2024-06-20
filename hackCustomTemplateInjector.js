@@ -67,12 +67,13 @@ function hackCustomTemplateInjector() {
 		const projectCodePicker = document.getElementById('issue-create.ui.modal.create-form.project-picker.project-select');
 		const selectedDDProjectCode = projectCodePicker && projectCodePicker.innerText.split('(')[1].split(')')[0]; // Ex: "Team Project (ABC)"
 		
+		const createDescriptionField = document.getElementById('ak-editor-textarea');
+		createDescriptionField.innerText = 'Loading template...';
+		
 		if (selectedDDProjectCode && selectedDDProjectCode != currProjectCode) {
-			const createDescriptionField = document.getElementById('ak-editor-textarea');
-			createDescriptionField.innerText = 'Loading template...';
 			_storeProjectTemplatesLocally(selectedDDProjectCode, _injectIssueTemplate);
 		} else {
-			_injectIssueTemplate(currProjectCode);
+			_storeProjectTemplatesLocally(currProjectCode, _injectIssueTemplate);
 		}
     };
     
@@ -169,11 +170,8 @@ function hackCustomTemplateInjector() {
 		if (newProjectCode == undefined) { return; }
 
 		_checkTemplatesForExpiration(typeof USER_TEMPLATE_EXPIRE_AFTER_DAYS != 'undefined' ? USER_TEMPLATE_EXPIRE_AFTER_DAYS : undefined);
-		
-		if (newProjectCode != currProjectCode) { // Switching projects
-			currProjectCode = newProjectCode;
-			_storeProjectTemplatesLocally(currProjectCode);
-		}
+		if (newProjectCode != currProjectCode) { currProjectCode = newProjectCode; } // Ex: Switching projects
+		_storeProjectTemplatesLocally(currProjectCode);
     };
 
     const _init = function() {
@@ -183,7 +181,7 @@ function hackCustomTemplateInjector() {
     };
 
     return ({
-   	 init: () => { _init(); }
+		init: () => { _init(); }
     });
 }
 
