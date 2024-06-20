@@ -6,11 +6,15 @@
 //     Format: 'PROJECT_CODE': 'URL_TO_TEMPLATE'
 //     'ABC': 'https://api.npoint.io/656bccf0972ed60b7bba', // Edit template at https://www.npoint.io/docs/656bccf0972ed60b7bba
 // }
-
+//
 // Uncomment and add your Jira project/JSON template pairing(s):
-// const USER_TEMPLATE_URLS = {
+// var USER_TEMPLATE_URLS = {
 //     'PROJECT_CODE': 'URL_TO_TEMPLATE',
 // }
+//
+// Set how long the local templates are stored before refreshing them (default: 7 days)
+// var USER_TEMPLATE_EXPIRE_AFTER_DAYS = 0;
+
 
 /*===== Jira: Custom Template Injector on Create Issue =====*/
 function hackCustomTemplateInjector() {
@@ -18,12 +22,10 @@ function hackCustomTemplateInjector() {
 
     let currProjectCode;
 
-    const _fetchProjectTemplates = async function(projectCode, _callback = undefined) {
-		const templateSource = (localStorage.getItem('JIRAHACK-templates-all-projects') != null) ? JSON.parse(localStorage.getItem('JIRAHACK-templates-all-projects')) : USER_TEMPLATE_URLS;
-		const requestURL = templateSource[projectCode];
+    const _storeProjectTemplatesLocally = async function(projectCode, _callback = undefined) {
+		const requestURL = USER_TEMPLATE_URLS[projectCode];
 		
 		if (localStorage.getItem('JIRAHACK-template-' + projectCode) !== null || requestURL == undefined) {
-			// Don't re-fetch if in same project or the project code is undefined
 			typeof(_callback) == 'function' && _callback(projectCode);
 			return;
 		}
@@ -37,7 +39,7 @@ function hackCustomTemplateInjector() {
 			if (typeof jsonResponse == 'object') {
 				localStorage.setItem('JIRAHACK-template-' + projectCode, JSON.stringify(jsonResponse));
 			} else {
-				throw new Error('_fetchProjectTemplates::Invalid JSON response');
+				throw new Error('_storeProjectTemplatesLocally::Invalid JSON response');
 			}
 			
 			typeof(_callback) == 'function' && _callback(projectCode);
@@ -63,12 +65,12 @@ function hackCustomTemplateInjector() {
 
     const _getIssueTemplate = function() {
 		const projectCodePicker = document.getElementById('issue-create.ui.modal.create-form.project-picker.project-select');
-		const selectedDDProjectCode = projectCodePicker && projectCodePicker.innerText.split('(')[1].split(')')[0]; // Ex: "ABC Team (ABC)"
+		const selectedDDProjectCode = projectCodePicker && projectCodePicker.innerText.split('(')[1].split(')')[0]; // Ex: "Team Project (ABC)"
 		
 		if (selectedDDProjectCode && selectedDDProjectCode != currProjectCode) {
 			const createDescriptionField = document.getElementById('ak-editor-textarea');
 			createDescriptionField.innerText = 'Loading template...';
-			_fetchProjectTemplates(selectedDDProjectCode, _injectIssueTemplate);
+			_storeProjectTemplatesLocally(selectedDDProjectCode, _injectIssueTemplate);
 		} else {
 			_injectIssueTemplate(currProjectCode);
 		}
@@ -111,15 +113,15 @@ function hackCustomTemplateInjector() {
 
     const createIssueObserver = new MutationObserver(_onCreateIssueMutation);
     
-    const _clearTemplatesIfExpired = function () {
-		// Force expiry of stored templates every 7 days, to ensure "permanently opened" tabs receive version updates
+    const _checkTemplatesForExpiration = function (expireAfterDays = 7) {
+		// Force expiry of stored templates to ensure "permanently opened" tabs receive version updates
 		if (localStorage.getItem('JIRAHACK-templates-created-on-date') !== null) {
 			const templatesCreatedOnDate = new Date(localStorage.getItem('JIRAHACK-templates-created-on-date'));
 			const currDate = new Date();
 			const diffDatesByTime = currDate.getTime() - templatesCreatedOnDate.getTime();
 			const diffDatesByDays = diffDatesByTime / (1000 * 3600 * 24);
 			
-			if (diffDatesByDays > 7) { // Invalidate stored templates that are older than 7 days
+			if (diffDatesByDays > expireAfterDays) {
 				for (var key in localStorage) {
 					if (key.search(/^(JIRAHACK-template)(s?)(-)/) == 0) {
 						localStorage.removeItem(key);
@@ -133,31 +135,6 @@ function hackCustomTemplateInjector() {
 		}
     };
 
-    const _getProjectTemplateUrls = async function (_callback = undefined) {
-		_clearTemplatesIfExpired();
-		
-		if (localStorage.getItem('JIRAHACK-templates-all-projects') != null || typeof(USER_TEMPLATE_URLS) != 'undefined') {
-			// Use the stored templates
-			typeof(_callback) == 'function' && _callback();
-		} else if (typeof(REMOTE_PROJECT_TEMPLATES_URL) != 'undefined' && localStorage.getItem('JIRAHACK-templates-all-projects') == null) {
-			try {
-				const request = new Request(REMOTE_PROJECT_TEMPLATES_URL);
-				const response = await fetch(request);
-				const jsonResponse = await response.json();
-				
-				if (typeof jsonResponse == 'object') {
-					localStorage.setItem('JIRAHACK-templates-all-projects', JSON.stringify(jsonResponse));
-				} else {
-					throw new Error('getProjectTemplateUrls::Invalid JSON response');
-				}
-			
-				typeof(_callback) == 'function' && _callback();
-			} catch (e) {
-				console.error('Error fetching templates: ', e);
-			}
-		}
-    };
-
     const _onUpdate = function() {
 		let newProjectCode;
 		
@@ -168,7 +145,7 @@ function hackCustomTemplateInjector() {
 			newProjectCode = window.location.pathname.split('browse/')[1].split('-')[0];
 		}
 
-		// Click event listeners are removed (ie: switching to the same project), re-add
+		// Add click event listeners across projects
 		setTimeout(() => {
 			document.getElementById('createGlobalItem').addEventListener('click', _listenForCreateIssueMutations);
 			document.getElementById('createGlobalItemIconButton').addEventListener('click', _listenForCreateIssueMutations);
@@ -184,24 +161,26 @@ function hackCustomTemplateInjector() {
 			    const button = e.target.closest('button');
 
 				// Create Issue button in Epics pane has been clicked, prepare template injection			    
-			    if (button.innerText == 'Create issue') { _listenForCreateIssueMutations(); }
+			    if (button && button.innerText == 'Create issue') { _listenForCreateIssueMutations(); }
 			});	
 		}, 100);
 
+		// Can't determine the project code, abort
 		if (newProjectCode == undefined) { return; }
+
+		_checkTemplatesForExpiration(typeof USER_TEMPLATE_EXPIRE_AFTER_DAYS != 'undefined' ? USER_TEMPLATE_EXPIRE_AFTER_DAYS : undefined);
 		
-		_getProjectTemplateUrls(() => {
-			if (newProjectCode != currProjectCode) { // Switching projects
-				currProjectCode = newProjectCode;
-				_fetchProjectTemplates(currProjectCode);
-			}
-		});
+		if (newProjectCode != currProjectCode) { // Switching projects
+			currProjectCode = newProjectCode;
+			_storeProjectTemplatesLocally(currProjectCode);
+		}
     };
 
     const _init = function() {
+    	if (typeof(USER_TEMPLATE_URLS) != 'object') { return; }
 		_onUpdate();
 		window.addEventListener('locationchange', _onUpdate);
-    }
+    };
 
     return ({
    	 init: () => { _init(); }
