@@ -135,6 +135,14 @@ function hackCustomTemplateInjector() {
 			localStorage.setItem('JIRAHACK-templates-created-on-date', new Date());
 		}
     };
+    
+    const _checkForCreateKeyShortcut = function(e) {
+    	const createIssueMutationNode = document.getElementById('issue-create-modal-dropzone-container');
+    	
+    	if (e.key == 'c' && createIssueMutationNode == null) { // Ignore 'c' keystrokes if the Create Issue modal is open
+    		_listenForCreateIssueMutations();
+    	}	
+    };
 
     const _onUpdate = function() {
 		let newProjectCode;
@@ -150,6 +158,7 @@ function hackCustomTemplateInjector() {
 		setTimeout(() => {
 			document.getElementById('createGlobalItem').addEventListener('click', _listenForCreateIssueMutations);
 			document.getElementById('createGlobalItemIconButton').addEventListener('click', _listenForCreateIssueMutations);
+			document.addEventListener('keydown', _checkForCreateKeyShortcut);
 			
 			_listenForCreateIssueMutations(); // Check to see if the Create Issue modal is rendered on page load
 		}, 10); // Wait for the buttons to re-render
