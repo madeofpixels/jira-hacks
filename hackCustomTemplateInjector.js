@@ -67,7 +67,7 @@ function hackCustomTemplateInjector() {
 		const projectCodePicker = document.getElementById('issue-create.ui.modal.create-form.project-picker.project-select');
 		const selectedDDProjectCode = projectCodePicker && projectCodePicker.innerText.split('(')[1].split(')')[0]; // Ex: "Team Project (ABC)"
 		
-		const createDescriptionField = document.getElementById('ak-editor-textarea');
+		const createDescriptionField = document.getElementById('issue-create.ui.modal.modal-body').querySelector('div#ak-editor-textarea');
 		createDescriptionField.innerText = 'Loading template...';
 		
 		if (selectedDDProjectCode && selectedDDProjectCode != currProjectCode) {
@@ -78,7 +78,7 @@ function hackCustomTemplateInjector() {
     };
     
     const _injectIssueTemplate = function(projectCode) {
-		const createDescriptionField = document.getElementById('ak-editor-textarea');
+		const createDescriptionField = document.getElementById('issue-create.ui.modal.modal-body').querySelector('div#ak-editor-textarea');
 		
 		if (localStorage.getItem('JIRAHACK-template-' + projectCode) == null) {
 			createDescriptionField.innerHTML = '';
