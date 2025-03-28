@@ -86,7 +86,7 @@ function hackCustomTemplateInjector() {
 		}
 
 		const issueTypePicker = document.getElementById('issue-create.ui.modal.create-form.type-picker.issue-type-select');
-		const selectedIssueType = (issueTypePicker && issueTypePicker.innerText) || null;
+		const selectedIssueType = (issueTypePicker && issueTypePicker.innerText).trim() || null;
 		const currProjectTemplates = JSON.parse(localStorage.getItem('JIRAHACK-template-' + projectCode));
 		
 		if (selectedIssueType != null && currProjectTemplates[selectedIssueType] != undefined) {
